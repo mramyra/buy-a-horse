@@ -6,52 +6,9 @@
     <title>Купи коня - Главная</title>
     <link rel="icon" type="image/png" href="img/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            background-image: url('img/fon.png');
-            background-size: cover;
-            background-position: center;
-        }
-        #logo {
-            width: 400px;
-            height: 400px;
-            max-width: 80%;
-            object-fit: contain;
-            transition: transform 0.2s;
-            animation: pulse 2s infinite;
-        }
-        #logo:hover {
-            transform: scale(1.05);
-        }
-        @media (max-width: 640px) {
-            #logo {
-                width: 300px;
-                height: 300px;
-            }
-            .description-text {
-                font-size: 0.9rem;
-            }
-            .container {
-                padding: 1rem;
-            }
-        }
-        .btn {
-            transition: all 0.3s ease;
-        }
-        .btn:hover {
-            transform: scale(1.05);
-            filter: brightness(1.1);
-        }
-        .fade-out {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-            100% { transform: scale(1); }
-        }
-    </style>
+    <!-- Подключение CSS -->
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/index.css">
 </head>
 <body class="font-sans">
     <div id="mainContainer" class="min-h-screen flex flex-col items-center justify-center bg-opacity-75 bg-gray-100">
@@ -61,7 +18,7 @@
         <!-- Описание игры -->
         <div class="container bg-white bg-opacity-90 p-6 rounded shadow max-w-2xl text-center">
             <h1 class="text-3xl font-bold text-gray-800 mb-4">Добро пожаловать в "Купи коня"!</h1>
-            <p class="description-text text-lg text-gray-800 mb-6 text-shadow">
+            <p class="description-text text-lg text-gray-800 mb-6 readable-text">
                 В этой захватывающей кликер-игре твоя мечта стать владельцем великолепного скакуна может стать реальностью! Кликай, чтобы собирать монеты, покупай улучшения и нанимай помощников, чтобы накопить 10,000,000 монет и купить легендарного коня. Начни своё приключение прямо сейчас!
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
@@ -71,18 +28,7 @@
         </div>
     </div>
 
-    <script>
-        // Плавный переход при клике на ссылки
-        document.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const href = link.getAttribute('href');
-                document.getElementById('mainContainer').classList.add('fade-out');
-                setTimeout(() => {
-                    window.location.href = href;
-                }, 300);
-            });
-        });
-    </script>
+    <!-- Подключение JS -->
+    <script src="js/index.js"></script>
 </body>
 </html>

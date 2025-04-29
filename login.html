@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход</title>
+    <title>Вход / Регистрация</title>
     <link rel="icon" type="image/png" href="img/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Подключение Firebase SDK -->
@@ -17,9 +17,12 @@
     <div id="mainContainer" class="min-h-screen flex flex-col items-center justify-center bg-opacity-75 bg-gray-100">
         <img id="logo" src="img/logo.png" alt="Купи коня" class="mb-6">
         <div class="bg-white bg-opacity-90 p-6 rounded shadow max-w-sm w-full">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4 text-center">Вход</h1>
+            <h1 id="formTitle" class="text-2xl font-bold text-gray-800 mb-4 text-center">Вход</h1>
             <input type="text" id="username" placeholder="Введите имя пользователя" class="w-full p-2 mb-4 border rounded">
-            <button id="loginButton" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Играть</button>
+            <input type="password" id="password" placeholder="Введите пароль" class="w-full p-2 mb-4 border rounded">
+            <button id="actionButton" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Войти</button>
+            <button id="toggleForm" class="w-full mt-2 text-blue-500 hover:underline">Нет аккаунта? Зарегистрируйтесь</button>
+            <a href="index.html" class="block text-center mt-4 text-gray-600 hover:underline">Вернуться на главную</a>
         </div>
     </div>
 

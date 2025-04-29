@@ -1,0 +1,18 @@
+.description-text {
+    font-size: 1.125rem; /* text-lg */
+}
+
+@media (max-width: 640px) {
+    .description-text {
+        font-size: 0.9rem;
+    }
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
