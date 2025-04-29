@@ -4,20 +4,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const formTitle = document.getElementById('formTitle');
     let isLoginMode = true;
 
-    // Проверка, что элементы найдены
     if (!actionButton || !toggleFormButton || !formTitle) {
         console.error('Не удалось найти элементы формы:', { actionButton, toggleFormButton, formTitle });
         return;
     }
 
-    // Проверка, что window.db доступен
     if (!window.db) {
         console.error('Firestore не инициализирована! Проверь window.db в common.js');
         alert('Ошибка: база данных не инициализирована. Проверь консоль.');
         return;
     }
 
-    // Переключение между входом и регистрацией
     toggleFormButton.addEventListener('click', () => {
         isLoginMode = !isLoginMode;
         if (isLoginMode) {
@@ -33,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('password').value = '';
     });
 
-    // Обработка действия (вход или регистрация)
     actionButton.addEventListener('click', async () => {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
@@ -52,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Документ:', doc.exists ? doc.data() : 'не существует');
 
             if (isLoginMode) {
-                // Режим входа
                 if (!doc.exists) {
                     console.log('Пользователь не найден:', username);
                     alert('Пользователь не найден! Пожалуйста, зарегистрируйтесь.');
@@ -60,13 +55,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const userData = doc.data();
-                if (userData.password !== password) {
+                const savedPassword = String(userData.password);
+                const inputPassword = String(password);
+                console.log('Сохранённый пароль:', savedPassword, 'Тип:', typeof savedPassword);
+                console.log('Введённый пароль:', inputPassword, 'Тип:', typeof inputPassword);
+                if (savedPassword !== inputPassword) {
                     console.log('Неверный пароль для пользователя:', username);
                     alert('Неверный пароль!');
                     return;
                 }
 
-                // Успешный вход
                 console.log('Успешный вход для пользователя:', username);
                 localStorage.setItem('currentUser', username);
                 document.getElementById('mainContainer').classList.add('fade-out');
@@ -74,14 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = 'game.html';
                 }, 300);
             } else {
-                // Режим регистрации
                 if (doc.exists) {
                     console.log('Пользователь уже существует:', username);
                     alert('Пользователь с таким именем уже существует! Пожалуйста, выберите другое имя.');
                     return;
                 }
 
-                // Список достижений для нового пользователя
                 const initialAchievements = [
                     { id: 'newbie', completed: false },
                     { id: 'farmer', completed: false },
@@ -109,8 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     { id: 'sickle_10', completed: false }
                 ];
 
-                // Регистрация нового пользователя
                 console.log('Регистрирую нового пользователя:', username);
+                console.log('Сохраняю пароль:', password); // Добавляем отладку
                 await userRef.set({
                     username: username,
                     password: password,
