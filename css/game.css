@@ -1,0 +1,272 @@
+#clickArea img {
+    transition: transform 0.1s;
+}
+
+#clickArea img:hover {
+    transform: scale(1.1);
+}
+
+#clickArea img.clicked {
+    animation: rotateCoin 0.3s ease;
+}
+
+.upgrade-card {
+    transition: background-color 0.3s, transform 0.2s;
+    position: relative;
+}
+
+.upgrade-card.purchased {
+    background-color: #d1fae5;
+}
+
+.upgrade-card.locked::after {
+    content: '🔒';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 1.2rem;
+    opacity: 0.7;
+}
+
+button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+#konamiMessage {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    display: none;
+    font-size: 14px;
+}
+
+#konamiHint {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    left: auto;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    transition: transform 0.2s;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    animation: blink 2s infinite;
+}
+
+#konamiHint:hover {
+    transform: scale(1.05);
+}
+
+#konamiHint span.arrow {
+    font-size: 14px;
+}
+
+#konamiHint span.letter {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.progress-bar {
+    background: linear-gradient(to right, #22c55e, #86efac);
+}
+
+.particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: url('../img/coin.png') no-repeat center;
+    background-size: contain;
+    pointer-events: none;
+    animation: particleFade 0.5s ease-out forwards;
+}
+
+.achievement-card {
+    transition: background-color 0.3s;
+}
+
+.achievement-card.completed {
+    background-color: #fef08a;
+}
+
+#achievementNotification {
+    position: fixed;
+    bottom: 50px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    display: none;
+    font-size: 14px;
+}
+
+.toggle-btn {
+    background: linear-gradient(to right, #f59e0b, #fbbf24);
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Стили для модального окна достижений */
+#achievementsModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+    overflow-x: hidden;
+}
+
+#achievementsModalContent {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    overflow-x: hidden;
+}
+
+#closeModal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#closeModal:hover {
+    background: #dc2626;
+}
+
+.achievement-card {
+    word-break: break-word;
+    max-width: 100%;
+}
+
+.achievement-progress-bar {
+    background: #e5e7eb;
+    border-radius: 5px;
+    height: 8px;
+    margin-top: 5px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.achievement-progress-bar-fill {
+    background: linear-gradient(to right, #22c55e, #86efac);
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+/* Стили для модального окна рейтинга */
+#leaderboardModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+    overflow-x: hidden;
+}
+
+#leaderboardModalContent {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    overflow-x: hidden;
+}
+
+#closeLeaderboardModal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#closeLeaderboardModal:hover {
+    background: #dc2626;
+}
+
+#leaderboardTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#leaderboardTable th, #leaderboardTable td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#leaderboardTable th {
+    background-color: #f3f4f6;
+    font-weight: bold;
+}
+
+@media (max-width: 640px) {
+    #achievementsModalContent, #leaderboardModalContent {
+        padding: 15px;
+        max-height: 70vh;
+    }
+    #leaderboardTable th, #leaderboardTable td {
+        padding: 4px;
+        font-size: 0.75rem;
+    }
+}
+
+@keyframes rotateCoin {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+@keyframes particleFade {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0.5); }
+}

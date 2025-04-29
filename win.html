@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Победа!</title>
+    <link rel="icon" type="image/png" href="img/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Подключение Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <!-- Подключение CSS -->
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/win.css">
+</head>
+<body class="font-sans">
+    <div id="mainContainer" class="min-h-screen flex flex-col items-center justify-center bg-opacity-75 bg-gray-100">
+        <img id="logo" src="img/logo.png" alt="Купи коня" class="mb-6">
+        <div class="text-3xl font-bold text-gray-800 readable-text mb-4">Поздравляем! Ты купил коня!</div>
+        <div class="flex space-x-4 mb-6">
+            <img src="img/winner.png" alt="Конь 1" class="w-40 h-40">
+            <img src="img/winner2.png" alt="Конь 2" class="w-40 h-40">
+        </div>
+        <a href="game.html" id="playAgain" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Играть снова</a>
+        <a href="login.html" id="logout" class="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Выйти</a>
+    </div>
+
+    <!-- Подключение JS -->
+    <script src="js/common.js"></script>
+    <script src="js/win.js"></script>
+</body>
+</html>
