@@ -6,7 +6,7 @@ const firebaseConfig = {
     storageBucket: "твой-storageBucket",
     messagingSenderId: "твой-messagingSenderId",
     appId: "твой-appId",
-    databaseURL: "https://buy-a-horse-default-rtdb.europe-west1.firebasedatabase.app/"
+    databaseURL: "https://buy-a-horse-default-rtdb.firebaseio.com/"
 };
 
 // Проверка, что firebase доступен

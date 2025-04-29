@@ -81,6 +81,34 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
+                // Список достижений для нового пользователя
+                const initialAchievements = [
+                    { id: 'newbie', completed: false },
+                    { id: 'farmer', completed: false },
+                    { id: 'konami', completed: false },
+                    { id: 'millionaire', completed: false },
+                    { id: 'clicker_10', completed: false },
+                    { id: 'clicker_100', completed: false },
+                    { id: 'clicker_1000', completed: false },
+                    { id: 'sickle_5', completed: false },
+                    { id: 'shovel_3', completed: false },
+                    { id: 'worker_10', completed: false },
+                    { id: 'stable_5', completed: false },
+                    { id: 'coins_5000', completed: false },
+                    { id: 'coins_50000', completed: false },
+                    { id: 'coins_5000000', completed: false },
+                    { id: 'passive_10', completed: false },
+                    { id: 'passive_50', completed: false },
+                    { id: 'passive_100', completed: false },
+                    { id: 'click_value_10', completed: false },
+                    { id: 'click_value_50', completed: false },
+                    { id: 'upgrades_5', completed: false },
+                    { id: 'upgrades_20', completed: false },
+                    { id: 'upgrades_50', completed: false },
+                    { id: 'coins_100000', completed: false },
+                    { id: 'sickle_10', completed: false }
+                ];
+
                 // Регистрация нового пользователя
                 console.log('Регистрирую нового пользователя:', username);
                 await userRef.set({
@@ -96,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         worker: { level: 0, basePrice: 200, price: 200, baseEffect: 1, effect: 0 },
                         stable: { level: 0, basePrice: 5000, price: 5000, baseEffect: 20, effect: 0 }
                     },
-                    achievements: []
+                    achievements: initialAchievements
                 });
 
                 console.log('Регистрация успешна для пользователя:', username);
