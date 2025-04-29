@@ -1,4 +1,3 @@
-// Инициализация переменных
 let coins = 0;
 let horsesBought = 0;
 const goal = 10000000;
@@ -10,7 +9,6 @@ let clicks = 0;
 let lastClicks = 0;
 let cps = 0;
 
-// Данные об улучшениях
 const upgrades = {
     sickle: { level: 0, basePrice: 50, price: 50, baseEffect: 1, effect: 0 },
     shovel: { level: 0, basePrice: 1000, price: 1000, baseEffect: 5, effect: 0 },
@@ -18,236 +16,40 @@ const upgrades = {
     stable: { level: 0, basePrice: 5000, price: 5000, baseEffect: 20, effect: 0 }
 };
 
-// Определение достижений (логика хранится в коде, а не в базе данных)
 const achievementDefinitions = [
-    {
-        id: 'newbie',
-        name: 'Новичок',
-        description: 'Собери 100 монет',
-        condition: () => coins >= 100,
-        progress: () => Math.min(coins, 100),
-        maxProgress: 100,
-        reward: 50
-    },
-    {
-        id: 'farmer',
-        name: 'Фермер',
-        description: 'Купи 1 уровень "Ловкого работника"',
-        condition: () => upgrades.worker.level >= 1,
-        progress: () => upgrades.worker.level,
-        maxProgress: 1,
-        reward: 200
-    },
-    {
-        id: 'konami',
-        name: 'Секретный код',
-        description: 'Активируй код Konami',
-        condition: () => konamiActivated,
-        progress: () => (konamiActivated ? 1 : 0),
-        maxProgress: 1,
-        reward: 500
-    },
-    {
-        id: 'millionaire',
-        name: 'Миллионер',
-        description: 'Собери 1,000,000 монет',
-        condition: () => coins >= 1000000,
-        progress: () => Math.min(coins, 1000000),
-        maxProgress: 1000000,
-        reward: 1000
-    },
-    {
-        id: 'clicker_10',
-        name: 'Начинающий кликер',
-        description: 'Сделай 10 кликов',
-        condition: () => clicks >= 10,
-        progress: () => Math.min(clicks, 10),
-        maxProgress: 10,
-        reward: 20
-    },
-    {
-        id: 'clicker_100',
-        name: 'Уверенный кликер',
-        description: 'Сделай 100 кликов',
-        condition: () => clicks >= 100,
-        progress: () => Math.min(clicks, 100),
-        maxProgress: 100,
-        reward: 100
-    },
-    {
-        id: 'clicker_1000',
-        name: 'Мастер кликов',
-        description: 'Сделай 1,000 кликов',
-        condition: () => clicks >= 1000,
-        progress: () => Math.min(clicks, 1000),
-        maxProgress: 1000,
-        reward: 500
-    },
-    {
-        id: 'sickle_5',
-        name: 'Мастер серпа',
-        description: 'Купи 5 уровней "Острого серпа"',
-        condition: () => upgrades.sickle.level >= 5,
-        progress: () => upgrades.sickle.level,
-        maxProgress: 5,
-        reward: 300
-    },
-    {
-        id: 'shovel_3',
-        name: 'Золотой копатель',
-        description: 'Купи 3 уровня "Золотой лопаты"',
-        condition: () => upgrades.shovel.level >= 3,
-        progress: () => upgrades.shovel.level,
-        maxProgress: 3,
-        reward: 600
-    },
-    {
-        id: 'worker_10',
-        name: 'Бригадир',
-        description: 'Купи 10 уровней "Ловкого работника"',
-        condition: () => upgrades.worker.level >= 10,
-        progress: () => upgrades.worker.level,
-        maxProgress: 10,
-        reward: 800
-    },
-    {
-        id: 'stable_5',
-        name: 'Владелец конюшни',
-        description: 'Купи 5 уровней "Конюшни мечты"',
-        condition: () => upgrades.stable.level >= 5,
-        progress: () => upgrades.stable.level,
-        maxProgress: 5,
-        reward: 1000
-    },
-    {
-        id: 'coins_5000',
-        name: 'Собиратель',
-        description: 'Собери 5,000 монет',
-        condition: () => coins >= 5000,
-        progress: () => Math.min(coins, 5000),
-        maxProgress: 5000,
-        reward: 150
-    },
-    {
-        id: 'coins_50000',
-        name: 'Богатей',
-        description: 'Собери 50,000 монет',
-        condition: () => coins >= 50000,
-        progress: () => Math.min(coins, 50000),
-        maxProgress: 50000,
-        reward: 400
-    },
-    {
-        id: 'coins_5000000',
-        name: 'Полпути к мечте',
-        description: 'Собери 5,000,000 монет',
-        condition: () => coins >= 5000000,
-        progress: () => Math.min(coins, 5000000),
-        maxProgress: 5000000,
-        reward: 2000
-    },
-    {
-        id: 'passive_10',
-        name: 'Пассивный доход',
-        description: 'Достигни пассивного дохода 10 монет/сек',
-        condition: () => passiveIncome >= 10,
-        progress: () => Math.min(passiveIncome, 10),
-        maxProgress: 10,
-        reward: 300
-    },
-    {
-        id: 'passive_50',
-        name: 'Стабильный доход',
-        description: 'Достигни пассивного дохода 50 монет/сек',
-        condition: () => passiveIncome >= 50,
-        progress: () => Math.min(passiveIncome, 50),
-        maxProgress: 50,
-        reward: 700
-    },
-    {
-        id: 'passive_100',
-        name: 'Магнат',
-        description: 'Достигни пассивного дохода 100 монет/сек',
-        condition: () => passiveIncome >= 100,
-        progress: () => Math.min(passiveIncome, 100),
-        maxProgress: 100,
-        reward: 1500
-    },
-    {
-        id: 'click_value_10',
-        name: 'Усилитель кликов',
-        description: 'Достигни 10 монет за клик',
-        condition: () => clickValue >= 10,
-        progress: () => Math.min(clickValue, 10),
-        maxProgress: 10,
-        reward: 250
-    },
-    {
-        id: 'click_value_50',
-        name: 'Мощный клик',
-        description: 'Достигни 50 монет за клик',
-        condition: () => clickValue >= 50,
-        progress: () => Math.min(clickValue, 50),
-        maxProgress: 50,
-        reward: 800
-    },
-    {
-        id: 'upgrades_5',
-        name: 'Покупатель',
-        description: 'Купи 5 любых улучшений',
-        condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 5,
-        progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 5),
-        maxProgress: 5,
-        reward: 200
-    },
-    {
-        id: 'upgrades_20',
-        name: 'Коллекционер',
-        description: 'Купи 20 любых улучшений',
-        condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 20,
-        progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 20),
-        maxProgress: 20,
-        reward: 600
-    },
-    {
-        id: 'upgrades_50',
-        name: 'Инвестор',
-        description: 'Купи 50 любых улучшений',
-        condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 50,
-        progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 50),
-        maxProgress: 50,
-        reward: 1200
-    },
-    {
-        id: 'coins_100000',
-        name: 'Сотня тысяч',
-        description: 'Собери 100,000 монет',
-        condition: () => coins >= 100000,
-        progress: () => Math.min(coins, 100000),
-        maxProgress: 100000,
-        reward: 500
-    },
-    {
-        id: 'sickle_10',
-        name: 'Супер серп',
-        description: 'Купи 10 уровней "Острого серпа"',
-        condition: () => upgrades.sickle.level >= 10,
-        progress: () => upgrades.sickle.level,
-        maxProgress: 10,
-        reward: 600
-    }
+    { id: 'newbie', name: 'Новичок', description: 'Собери 100 монет', condition: () => coins >= 100, progress: () => Math.min(coins, 100), maxProgress: 100, reward: 50 },
+    { id: 'farmer', name: 'Фермер', description: 'Купи 1 уровень "Ловкого работника"', condition: () => upgrades.worker.level >= 1, progress: () => upgrades.worker.level, maxProgress: 1, reward: 200 },
+    { id: 'konami', name: 'Секретный код', description: 'Активируй код Konami', condition: () => konamiActivated, progress: () => (konamiActivated ? 1 : 0), maxProgress: 1, reward: 500 },
+    { id: 'millionaire', name: 'Миллионер', description: 'Собери 1,000,000 монет', condition: () => coins >= 1000000, progress: () => Math.min(coins, 1000000), maxProgress: 1000000, reward: 1000 },
+    { id: 'clicker_10', name: 'Начинающий кликер', description: 'Сделай 10 кликов', condition: () => clicks >= 10, progress: () => Math.min(clicks, 10), maxProgress: 10, reward: 20 },
+    { id: 'clicker_100', name: 'Уверенный кликер', description: 'Сделай 100 кликов', condition: () => clicks >= 100, progress: () => Math.min(clicks, 100), maxProgress: 100, reward: 100 },
+    { id: 'clicker_1000', name: 'Мастер кликов', description: 'Сделай 1,000 кликов', condition: () => clicks >= 1000, progress: () => Math.min(clicks, 1000), maxProgress: 1000, reward: 500 },
+    { id: 'sickle_5', name: 'Мастер серпа', description: 'Купи 5 уровней "Острого серпа"', condition: () => upgrades.sickle.level >= 5, progress: () => upgrades.sickle.level, maxProgress: 5, reward: 300 },
+    { id: 'shovel_3', name: 'Золотой копатель', description: 'Купи 3 уровня "Золотой лопаты"', condition: () => upgrades.shovel.level >= 3, progress: () => upgrades.shovel.level, maxProgress: 3, reward: 600 },
+    { id: 'worker_10', name: 'Бригадир', description: 'Купи 10 уровней "Ловкого работника"', condition: () => upgrades.worker.level >= 10, progress: () => upgrades.worker.level, maxProgress: 10, reward: 800 },
+    { id: 'stable_5', name: 'Владелец конюшни', description: 'Купи 5 уровней "Конюшни мечты"', condition: () => upgrades.stable.level >= 5, progress: () => upgrades.stable.level, maxProgress: 5, reward: 1000 },
+    { id: 'coins_5000', name: 'Собиратель', description: 'Собери 5,000 монет', condition: () => coins >= 5000, progress: () => Math.min(coins, 5000), maxProgress: 5000, reward: 150 },
+    { id: 'coins_50000', name: 'Богатей', description: 'Собери 50,000 монет', condition: () => coins >= 50000, progress: () => Math.min(coins, 50000), maxProgress: 50000, reward: 400 },
+    { id: 'coins_5000000', name: 'Полпути к мечте', description: 'Собери 5,000,000 монет', condition: () => coins >= 5000000, progress: () => Math.min(coins, 5000000), maxProgress: 5000000, reward: 2000 },
+    { id: 'passive_10', name: 'Пассивный доход', description: 'Достигни пассивного дохода 10 монет/сек', condition: () => passiveIncome >= 10, progress: () => Math.min(passiveIncome, 10), maxProgress: 10, reward: 300 },
+    { id: 'passive_50', name: 'Стабильный доход', description: 'Достигни пассивного дохода 50 монет/сек', condition: () => passiveIncome >= 50, progress: () => Math.min(passiveIncome, 50), maxProgress: 50, reward: 700 },
+    { id: 'passive_100', name: 'Магнат', description: 'Достигни пассивного дохода 100 монет/сек', condition: () => passiveIncome >= 100, progress: () => Math.min(passiveIncome, 100), maxProgress: 100, reward: 1500 },
+    { id: 'click_value_10', name: 'Усилитель кликов', description: 'Достигни 10 монет за клик', condition: () => clickValue >= 10, progress: () => Math.min(clickValue, 10), maxProgress: 10, reward: 250 },
+    { id: 'click_value_50', name: 'Мощный клик', description: 'Достигни 50 монет за клик', condition: () => clickValue >= 50, progress: () => Math.min(clickValue, 50), maxProgress: 50, reward: 800 },
+    { id: 'upgrades_5', name: 'Покупатель', description: 'Купи 5 любых улучшений', condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 5, progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 5), maxProgress: 5, reward: 200 },
+    { id: 'upgrades_20', name: 'Коллекционер', description: 'Купи 20 любых улучшений', condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 20, progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 20), maxProgress: 20, reward: 600 },
+    { id: 'upgrades_50', name: 'Инвестор', description: 'Купи 50 любых улучшений', condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 50, progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 50), maxProgress: 50, reward: 1200 },
+    { id: 'coins_100000', name: 'Сотня тысяч', description: 'Собери 100,000 монет', condition: () => coins >= 100000, progress: () => Math.min(coins, 100000), maxProgress: 100000, reward: 500 },
+    { id: 'sickle_10', name: 'Супер серп', description: 'Купи 10 уровней "Острого серпа"', condition: () => upgrades.sickle.level >= 10, progress: () => upgrades.sickle.level, maxProgress: 10, reward: 600 }
 ];
 
-// Храним только состояние достижений (id и completed)
 let achievements = achievementDefinitions.map(def => ({
     id: def.id,
     completed: false
 }));
 
-// Получение текущего пользователя
 const currentUser = localStorage.getItem('currentUser');
 
-// Загрузка прогресса из Firestore
 async function loadProgress() {
     if (!currentUser) {
         window.location.href = 'index.html';
@@ -280,7 +82,6 @@ async function loadProgress() {
                 });
             }
         } else {
-            // Если пользователь новый, создаём запись в Firestore
             await userRef.set({
                 username: currentUser,
                 coins: 0,
@@ -298,7 +99,6 @@ async function loadProgress() {
     }
 }
 
-// Сохранение прогресса в Firestore
 async function saveProgress() {
     if (!currentUser) return;
 
@@ -318,7 +118,6 @@ async function saveProgress() {
     }
 }
 
-// Отображение достижений в модальном окне
 function renderAchievements() {
     const achievementsList = document.getElementById('achievementsList');
     achievementsList.innerHTML = '';
@@ -348,10 +147,9 @@ function renderAchievements() {
     });
 }
 
-// Проверка достижений
 function checkAchievements() {
     achievements.forEach(achievement => {
-        if (achievement.completed) return; // Уже выполнено
+        if (achievement.completed) return;
         const def = achievementDefinitions.find(d => d.id === achievement.id);
         if (def.condition()) {
             achievement.completed = true;
@@ -362,7 +160,6 @@ function checkAchievements() {
     });
 }
 
-// Уведомление о выполнении достижения
 function showAchievementNotification(achievement) {
     const notification = document.getElementById('achievementNotification');
     notification.textContent = `Достижение "${achievement.name}" выполнено! +${achievement.reward} монет`;
@@ -372,12 +169,10 @@ function showAchievementNotification(achievement) {
     }, 3000);
 }
 
-// Расчёт рейтинга
 function calculateRating(horsesBought, coins) {
     return (horsesBought * 1000) + coins;
 }
 
-// Отображение рейтинга из Firestore
 async function renderLeaderboard() {
     const leaderboardBody = document.getElementById('leaderboardBody');
     leaderboardBody.innerHTML = '';
@@ -410,7 +205,6 @@ async function renderLeaderboard() {
     }
 }
 
-// Обновление интерфейса
 function updateUI() {
     document.getElementById('coinCount').textContent = Math.floor(coins);
     document.getElementById('progressBar').style.width = `${Math.min((coins / goal) * 100, 100)}%`;
@@ -453,7 +247,6 @@ function updateUI() {
     }
 }
 
-// Сброс улучшений и достижений
 function resetUpgrades() {
     for (const key in upgrades) {
         upgrades[key].level = 0;
@@ -469,7 +262,6 @@ function resetUpgrades() {
     renderAchievements();
 }
 
-// Реализация кода Konami
 const konamiCode = [
     'ArrowUp', 'ArrowUp',
     'ArrowDown', 'ArrowDown',
@@ -502,14 +294,12 @@ function activateKonami() {
     updateUI();
 }
 
-// Обработка кликов по монете
 const clickArea = document.getElementById('clickArea');
 clickArea.addEventListener('click', (e) => {
     coins += konamiActivated ? KONAMI_BONUS_CLICK_VALUE : clickValue;
     clicks++;
     clickArea.querySelector('img').classList.add('clicked');
 
-    // Создание частиц
     for (let i = 0; i < 3; i++) {
         const particle = document.createElement('div');
         particle.classList.add('particle');
@@ -527,14 +317,12 @@ clickArea.addEventListener('click', (e) => {
     updateUI();
 });
 
-// Подсчёт CPS
 setInterval(() => {
     cps = clicks - lastClicks;
     lastClicks = clicks;
     document.getElementById('cpsCount').textContent = cps;
 }, 1000);
 
-// Покупка улучшений
 function buyUpgrade(upgradeKey) {
     const upgrade = upgrades[upgradeKey];
     if (coins >= upgrade.price) {
@@ -565,20 +353,17 @@ document.getElementById('buyShovel').addEventListener('click', () => buyUpgrade(
 document.getElementById('buyWorker').addEventListener('click', () => buyUpgrade('worker'));
 document.getElementById('buyStable').addEventListener('click', () => buyUpgrade('stable'));
 
-// Пассивный доход
 setInterval(() => {
     coins += passiveIncome;
     saveProgress();
     updateUI();
 }, 1000);
 
-// Выход без сброса прогресса
 document.getElementById('logout').addEventListener('click', (e) => {
     e.preventDefault();
     logout();
 });
 
-// Управление модальным окном достижений
 const achievementsModal = document.getElementById('achievementsModal');
 const showAchievementsBtn = document.getElementById('showAchievements');
 const closeModalBtn = document.getElementById('closeModal');
@@ -598,7 +383,6 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// Управление модальным окном рейтинга
 const leaderboardModal = document.getElementById('leaderboardModal');
 const showLeaderboardBtn = document.getElementById('showLeaderboard');
 const closeLeaderboardModalBtn = document.getElementById('closeLeaderboardModal');
@@ -618,5 +402,4 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// Загрузка прогресса при старте
 loadProgress();
