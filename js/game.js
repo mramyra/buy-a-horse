@@ -265,64 +265,74 @@ const achievements = [
 // Получение текущего пользователя
 const currentUser = localStorage.getItem('currentUser');
 
-// Загрузка прогресса из Firestore
+// Загрузка прогресса из Realtime Database
 async function loadProgress() {
     if (!currentUser) {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
         return;
     }
 
-    const userDoc = await window.db.collection('users').doc(currentUser).get();
-    if (userDoc.exists) {
-        const data = userDoc.data();
-        coins = data.coins || 0;
-        clickValue = data.clickValue || 1;
-        passiveIncome = data.passiveIncome || 0;
-        horsesBought = data.horsesBought || 0;
-        for (const key in upgrades) {
-            if (data.upgrades && data.upgrades[key]) {
-                upgrades[key].level = data.upgrades[key].level;
-                upgrades[key].price = data.upgrades[key].price;
-                upgrades[key].effect = data.upgrades[key].effect;
-            }
-        }
-        if (data.achievements) {
-            achievements.forEach(achievement => {
-                const savedAchievement = data.achievements.find(a => a.id === achievement.id);
-                if (savedAchievement) {
-                    achievement.completed = savedAchievement.completed;
+    try {
+        const userRef = window.db.ref('users/' + currentUser);
+        const snapshot = await userRef.once('value');
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            coins = data.coins || 0;
+            clickValue = data.clickValue || 1;
+            passiveIncome = data.passiveIncome || 0;
+            horsesBought = data.horsesBought || 0;
+            for (const key in upgrades) {
+                if (data.upgrades && data.upgrades[key]) {
+                    upgrades[key].level = data.upgrades[key].level;
+                    upgrades[key].price = data.upgrades[key].price;
+                    upgrades[key].effect = data.upgrades[key].effect;
                 }
+            }
+            if (data.achievements) {
+                achievements.forEach(achievement => {
+                    const savedAchievement = data.achievements.find(a => a.id === achievement.id);
+                    if (savedAchievement) {
+                        achievement.completed = savedAchievement.completed;
+                    }
+                });
+            }
+        } else {
+            // Если пользователь новый, создаём запись в Realtime Database
+            await userRef.set({
+                username: currentUser,
+                coins: 0,
+                clickValue: 1,
+                passiveIncome: 0,
+                horsesBought: 0,
+                upgrades: upgrades,
+                achievements: achievements
             });
         }
-    } else {
-        // Если пользователь новый, создаём запись в Firestore
-        await window.db.collection('users').doc(currentUser).set({
-            username: currentUser,
-            coins: 0,
-            clickValue: 1,
-            passiveIncome: 0,
-            horsesBought: 0,
-            upgrades: upgrades,
-            achievements: achievements
-        });
+        updateUI();
+    } catch (error) {
+        console.error('Ошибка при загрузке прогресса:', error);
+        alert('Не удалось загрузить прогресс. Проверь консоль.');
     }
-
-    updateUI();
 }
 
-// Сохранение прогресса в Firestore
+// Сохранение прогресса в Realtime Database
 async function saveProgress() {
     if (!currentUser) return;
 
-    await window.db.collection('users').doc(currentUser).set({
-        username: currentUser,
-        coins: coins,
-        clickValue: clickValue,
-        passiveIncome: passiveIncome,
-        horsesBought: horsesBought,
-        upgrades: upgrades,
-        achievements: achievements
-    }, { merge: true });
+    try {
+        await window.db.ref('users/' + currentUser).set({
+            username: currentUser,
+            coins: coins,
+            clickValue: clickValue,
+            passiveIncome: passiveIncome,
+            horsesBought: horsesBought,
+            upgrades: upgrades,
+            achievements: achievements
+        });
+    } catch (error) {
+        console.error('Ошибка при сохранении прогресса:', error);
+        alert('Не удалось сохранить прогресс. Проверь консоль.');
+    }
 }
 
 // Отображение достижений в модальном окне
@@ -381,32 +391,37 @@ function calculateRating(horsesBought, coins) {
     return (horsesBought * 1000) + coins;
 }
 
-// Отображение рейтинга из Firestore
+// Отображение рейтинга из Realtime Database
 async function renderLeaderboard() {
     const leaderboardBody = document.getElementById('leaderboardBody');
     leaderboardBody.innerHTML = '';
-    const querySnapshot = await window.db.collection('users').get();
-    const users = [];
-    querySnapshot.forEach(doc => {
-        const user = doc.data();
-        users.push({
-            username: user.username,
-            horsesBought: user.horsesBought || 0,
-            coins: user.coins || 0
+    try {
+        const snapshot = await window.db.ref('users').once('value');
+        const users = [];
+        snapshot.forEach(childSnapshot => {
+            const user = childSnapshot.val();
+            users.push({
+                username: user.username,
+                horsesBought: user.horsesBought || 0,
+                coins: user.coins || 0
+            });
         });
-    });
-    users.sort((a, b) => calculateRating(b.horsesBought, b.coins) - calculateRating(a.horsesBought, a.coins));
-    users.forEach(user => {
-        const row = document.createElement('tr');
-        const rating = calculateRating(user.horsesBought, user.coins);
-        row.innerHTML = `
-            <td>${user.username}</td>
-            <td>${user.horsesBought}</td>
-            <td>${Math.floor(user.coins)}</td>
-            <td>${rating}</td>
-        `;
-        leaderboardBody.appendChild(row);
-    });
+        users.sort((a, b) => calculateRating(b.horsesBought, b.coins) - calculateRating(a.horsesBought, a.coins));
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            const rating = calculateRating(user.horsesBought, user.coins);
+            row.innerHTML = `
+                <td>${user.username}</td>
+                <td>${user.horsesBought}</td>
+                <td>${Math.floor(user.coins)}</td>
+                <td>${rating}</td>
+            `;
+            leaderboardBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Ошибка при загрузке рейтинга:', error);
+        alert('Не удалось загрузить рейтинг. Проверь консоль.');
+    }
 }
 
 // Обновление интерфейса
