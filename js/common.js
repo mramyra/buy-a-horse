@@ -2,10 +2,11 @@
 const firebaseConfig = {
     apiKey: "твой-apiKey",
     authDomain: "твой-authDomain",
-    projectId: "твой-projectId",
+    projectId: "buy-a-horse",
     storageBucket: "твой-storageBucket",
     messagingSenderId: "твой-messagingSenderId",
-    appId: "твой-appId"
+    appId: "твой-appId",
+    databaseURL: "https://buy-a-horse-default-rtdb.europe-west1.firebasedatabase.app/"
 };
 
 // Проверка, что firebase доступен

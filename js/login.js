@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const userRef = window.db.ref('users/' + username);
             console.log('Проверяю существование пользователя...');
             const snapshot = await userRef.once('value');
+            console.log('Snapshot:', snapshot.val()); // Отладка: что возвращает запрос
 
             if (isLoginMode) {
                 // Режим входа
