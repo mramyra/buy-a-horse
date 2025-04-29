@@ -18,8 +18,8 @@ const upgrades = {
     stable: { level: 0, basePrice: 5000, price: 5000, baseEffect: 20, effect: 0 }
 };
 
-// Определение достижений с прогрессом
-const achievements = [
+// Определение достижений (логика хранится в коде, а не в базе данных)
+const achievementDefinitions = [
     {
         id: 'newbie',
         name: 'Новичок',
@@ -27,8 +27,7 @@ const achievements = [
         condition: () => coins >= 100,
         progress: () => Math.min(coins, 100),
         maxProgress: 100,
-        reward: 50,
-        completed: false
+        reward: 50
     },
     {
         id: 'farmer',
@@ -37,8 +36,7 @@ const achievements = [
         condition: () => upgrades.worker.level >= 1,
         progress: () => upgrades.worker.level,
         maxProgress: 1,
-        reward: 200,
-        completed: false
+        reward: 200
     },
     {
         id: 'konami',
@@ -47,8 +45,7 @@ const achievements = [
         condition: () => konamiActivated,
         progress: () => (konamiActivated ? 1 : 0),
         maxProgress: 1,
-        reward: 500,
-        completed: false
+        reward: 500
     },
     {
         id: 'millionaire',
@@ -57,8 +54,7 @@ const achievements = [
         condition: () => coins >= 1000000,
         progress: () => Math.min(coins, 1000000),
         maxProgress: 1000000,
-        reward: 1000,
-        completed: false
+        reward: 1000
     },
     {
         id: 'clicker_10',
@@ -67,8 +63,7 @@ const achievements = [
         condition: () => clicks >= 10,
         progress: () => Math.min(clicks, 10),
         maxProgress: 10,
-        reward: 20,
-        completed: false
+        reward: 20
     },
     {
         id: 'clicker_100',
@@ -77,8 +72,7 @@ const achievements = [
         condition: () => clicks >= 100,
         progress: () => Math.min(clicks, 100),
         maxProgress: 100,
-        reward: 100,
-        completed: false
+        reward: 100
     },
     {
         id: 'clicker_1000',
@@ -87,8 +81,7 @@ const achievements = [
         condition: () => clicks >= 1000,
         progress: () => Math.min(clicks, 1000),
         maxProgress: 1000,
-        reward: 500,
-        completed: false
+        reward: 500
     },
     {
         id: 'sickle_5',
@@ -97,8 +90,7 @@ const achievements = [
         condition: () => upgrades.sickle.level >= 5,
         progress: () => upgrades.sickle.level,
         maxProgress: 5,
-        reward: 300,
-        completed: false
+        reward: 300
     },
     {
         id: 'shovel_3',
@@ -107,8 +99,7 @@ const achievements = [
         condition: () => upgrades.shovel.level >= 3,
         progress: () => upgrades.shovel.level,
         maxProgress: 3,
-        reward: 600,
-        completed: false
+        reward: 600
     },
     {
         id: 'worker_10',
@@ -117,8 +108,7 @@ const achievements = [
         condition: () => upgrades.worker.level >= 10,
         progress: () => upgrades.worker.level,
         maxProgress: 10,
-        reward: 800,
-        completed: false
+        reward: 800
     },
     {
         id: 'stable_5',
@@ -127,8 +117,7 @@ const achievements = [
         condition: () => upgrades.stable.level >= 5,
         progress: () => upgrades.stable.level,
         maxProgress: 5,
-        reward: 1000,
-        completed: false
+        reward: 1000
     },
     {
         id: 'coins_5000',
@@ -137,8 +126,7 @@ const achievements = [
         condition: () => coins >= 5000,
         progress: () => Math.min(coins, 5000),
         maxProgress: 5000,
-        reward: 150,
-        completed: false
+        reward: 150
     },
     {
         id: 'coins_50000',
@@ -147,8 +135,7 @@ const achievements = [
         condition: () => coins >= 50000,
         progress: () => Math.min(coins, 50000),
         maxProgress: 50000,
-        reward: 400,
-        completed: false
+        reward: 400
     },
     {
         id: 'coins_5000000',
@@ -157,8 +144,7 @@ const achievements = [
         condition: () => coins >= 5000000,
         progress: () => Math.min(coins, 5000000),
         maxProgress: 5000000,
-        reward: 2000,
-        completed: false
+        reward: 2000
     },
     {
         id: 'passive_10',
@@ -167,8 +153,7 @@ const achievements = [
         condition: () => passiveIncome >= 10,
         progress: () => Math.min(passiveIncome, 10),
         maxProgress: 10,
-        reward: 300,
-        completed: false
+        reward: 300
     },
     {
         id: 'passive_50',
@@ -177,8 +162,7 @@ const achievements = [
         condition: () => passiveIncome >= 50,
         progress: () => Math.min(passiveIncome, 50),
         maxProgress: 50,
-        reward: 700,
-        completed: false
+        reward: 700
     },
     {
         id: 'passive_100',
@@ -187,8 +171,7 @@ const achievements = [
         condition: () => passiveIncome >= 100,
         progress: () => Math.min(passiveIncome, 100),
         maxProgress: 100,
-        reward: 1500,
-        completed: false
+        reward: 1500
     },
     {
         id: 'click_value_10',
@@ -197,8 +180,7 @@ const achievements = [
         condition: () => clickValue >= 10,
         progress: () => Math.min(clickValue, 10),
         maxProgress: 10,
-        reward: 250,
-        completed: false
+        reward: 250
     },
     {
         id: 'click_value_50',
@@ -207,8 +189,7 @@ const achievements = [
         condition: () => clickValue >= 50,
         progress: () => Math.min(clickValue, 50),
         maxProgress: 50,
-        reward: 800,
-        completed: false
+        reward: 800
     },
     {
         id: 'upgrades_5',
@@ -217,8 +198,7 @@ const achievements = [
         condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 5,
         progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 5),
         maxProgress: 5,
-        reward: 200,
-        completed: false
+        reward: 200
     },
     {
         id: 'upgrades_20',
@@ -227,8 +207,7 @@ const achievements = [
         condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 20,
         progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 20),
         maxProgress: 20,
-        reward: 600,
-        completed: false
+        reward: 600
     },
     {
         id: 'upgrades_50',
@@ -237,8 +216,7 @@ const achievements = [
         condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 50,
         progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 50),
         maxProgress: 50,
-        reward: 1200,
-        completed: false
+        reward: 1200
     },
     {
         id: 'coins_100000',
@@ -247,8 +225,7 @@ const achievements = [
         condition: () => coins >= 100000,
         progress: () => Math.min(coins, 100000),
         maxProgress: 100000,
-        reward: 500,
-        completed: false
+        reward: 500
     },
     {
         id: 'sickle_10',
@@ -257,15 +234,20 @@ const achievements = [
         condition: () => upgrades.sickle.level >= 10,
         progress: () => upgrades.sickle.level,
         maxProgress: 10,
-        reward: 600,
-        completed: false
+        reward: 600
     }
 ];
+
+// Храним только состояние достижений (id и completed)
+let achievements = achievementDefinitions.map(def => ({
+    id: def.id,
+    completed: false
+}));
 
 // Получение текущего пользователя
 const currentUser = localStorage.getItem('currentUser');
 
-// Загрузка прогресса из Realtime Database
+// Загрузка прогресса из Firestore
 async function loadProgress() {
     if (!currentUser) {
         window.location.href = 'index.html';
@@ -273,10 +255,10 @@ async function loadProgress() {
     }
 
     try {
-        const userRef = window.db.ref('users/' + currentUser);
-        const snapshot = await userRef.once('value');
-        if (snapshot.exists()) {
-            const data = snapshot.val();
+        const userRef = window.db.collection('users').doc(currentUser);
+        const doc = await userRef.get();
+        if (doc.exists) {
+            const data = doc.data();
             coins = data.coins || 0;
             clickValue = data.clickValue || 1;
             passiveIncome = data.passiveIncome || 0;
@@ -289,15 +271,16 @@ async function loadProgress() {
                 }
             }
             if (data.achievements) {
-                achievements.forEach(achievement => {
-                    const savedAchievement = data.achievements.find(a => a.id === achievement.id);
-                    if (savedAchievement) {
-                        achievement.completed = savedAchievement.completed;
-                    }
+                achievements = data.achievements.map(saved => {
+                    const def = achievementDefinitions.find(def => def.id === saved.id);
+                    return {
+                        id: saved.id,
+                        completed: saved.completed || false
+                    };
                 });
             }
         } else {
-            // Если пользователь новый, создаём запись в Realtime Database
+            // Если пользователь новый, создаём запись в Firestore
             await userRef.set({
                 username: currentUser,
                 coins: 0,
@@ -315,12 +298,12 @@ async function loadProgress() {
     }
 }
 
-// Сохранение прогресса в Realtime Database
+// Сохранение прогресса в Firestore
 async function saveProgress() {
     if (!currentUser) return;
 
     try {
-        await window.db.ref('users/' + currentUser).set({
+        await window.db.collection('users').doc(currentUser).set({
             username: currentUser,
             coins: coins,
             clickValue: clickValue,
@@ -340,23 +323,24 @@ function renderAchievements() {
     const achievementsList = document.getElementById('achievementsList');
     achievementsList.innerHTML = '';
     achievements.forEach(achievement => {
+        const def = achievementDefinitions.find(d => d.id === achievement.id);
         const card = document.createElement('div');
         card.classList.add('achievement-card', 'p-4', 'rounded', 'shadow', 'bg-gray-100');
         if (achievement.completed) {
             card.classList.add('completed');
         }
-        const progress = achievement.progress();
-        const maxProgress = achievement.maxProgress;
+        const progress = def.progress();
+        const maxProgress = def.maxProgress;
         const progressPercentage = (progress / maxProgress) * 100;
         card.innerHTML = `
             <div>
-                <h3 class="font-bold">${achievement.name}</h3>
-                <p class="text-sm">${achievement.description}</p>
+                <h3 class="font-bold">${def.name}</h3>
+                <p class="text-sm">${def.description}</p>
                 <p class="text-sm">Прогресс: ${progress}/${maxProgress}</p>
                 <div class="achievement-progress-bar">
                     <div class="achievement-progress-bar-fill" style="width: ${progressPercentage}%"></div>
                 </div>
-                <p class="text-sm">Награда: ${achievement.reward} монет</p>
+                <p class="text-sm">Награда: ${def.reward} монет</p>
                 <p class="text-sm font-semibold">${achievement.completed ? 'Выполнено!' : 'Не выполнено'}</p>
             </div>
         `;
@@ -367,10 +351,12 @@ function renderAchievements() {
 // Проверка достижений
 function checkAchievements() {
     achievements.forEach(achievement => {
-        if (!achievement.completed && achievement.condition()) {
+        if (achievement.completed) return; // Уже выполнено
+        const def = achievementDefinitions.find(d => d.id === achievement.id);
+        if (def.condition()) {
             achievement.completed = true;
-            coins += achievement.reward;
-            showAchievementNotification(achievement);
+            coins += def.reward;
+            showAchievementNotification(def);
             saveProgress();
         }
     });
@@ -391,15 +377,15 @@ function calculateRating(horsesBought, coins) {
     return (horsesBought * 1000) + coins;
 }
 
-// Отображение рейтинга из Realtime Database
+// Отображение рейтинга из Firestore
 async function renderLeaderboard() {
     const leaderboardBody = document.getElementById('leaderboardBody');
     leaderboardBody.innerHTML = '';
     try {
-        const snapshot = await window.db.ref('users').once('value');
+        const snapshot = await window.db.collection('users').get();
         const users = [];
-        snapshot.forEach(childSnapshot => {
-            const user = childSnapshot.val();
+        snapshot.forEach(doc => {
+            const user = doc.data();
             users.push({
                 username: user.username,
                 horsesBought: user.horsesBought || 0,
@@ -476,7 +462,10 @@ function resetUpgrades() {
     }
     clickValue = 1;
     passiveIncome = 0;
-    achievements.forEach(achievement => achievement.completed = false);
+    achievements = achievementDefinitions.map(def => ({
+        id: def.id,
+        completed: false
+    }));
     renderAchievements();
 }
 

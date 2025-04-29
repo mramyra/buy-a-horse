@@ -1,13 +1,14 @@
 // Инициализация Firebase
 const firebaseConfig = {
-    apiKey: "твой-apiKey",
-    authDomain: "твой-authDomain",
+    apiKey: "AIzaSyCBOyWk1YDcD_06SUrgj17HzoX44wp6-8I",
+    authDomain: "buy-a-horse.firebaseapp.com",
+    databaseURL: "https://buy-a-horse-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "buy-a-horse",
-    storageBucket: "твой-storageBucket",
-    messagingSenderId: "твой-messagingSenderId",
-    appId: "твой-appId",
-    databaseURL: "https://buy-a-horse-default-rtdb.firebaseio.com/"
-};
+    storageBucket: "buy-a-horse.firebasestorage.app",
+    messagingSenderId: "870680949016",
+    appId: "1:870680949016:web:4bfdfe73d68fc5dd036e6d",
+    measurementId: "G-CJ23QK2RE9"
+  };
 
 // Проверка, что firebase доступен
 if (typeof firebase === 'undefined') {
@@ -19,9 +20,9 @@ console.log('Инициализация Firebase...');
 // Инициализация приложения Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Инициализация Realtime Database
-window.db = firebase.database();
-console.log('Realtime Database инициализирована:', window.db);
+// Инициализация Firestore
+window.db = firebase.firestore();
+console.log('Firestore инициализирована:', window.db);
 
 // Функция выхода
 function logout() {

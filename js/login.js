@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Проверка, что window.db доступен
     if (!window.db) {
-        console.error('Realtime Database не инициализирована! Проверь window.db в common.js');
+        console.error('Firestore не инициализирована! Проверь window.db в common.js');
         alert('Ошибка: база данных не инициализирована. Проверь консоль.');
         return;
     }
@@ -46,20 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const userRef = window.db.ref('users/' + username);
+            const userRef = window.db.collection('users').doc(username);
             console.log('Проверяю существование пользователя...');
-            const snapshot = await userRef.once('value');
-            console.log('Snapshot:', snapshot.val()); // Отладка: что возвращает запрос
+            const doc = await userRef.get();
+            console.log('Документ:', doc.exists ? doc.data() : 'не существует');
 
             if (isLoginMode) {
                 // Режим входа
-                if (!snapshot.exists()) {
+                if (!doc.exists) {
                     console.log('Пользователь не найден:', username);
                     alert('Пользователь не найден! Пожалуйста, зарегистрируйтесь.');
                     return;
                 }
 
-                const userData = snapshot.val();
+                const userData = doc.data();
                 if (userData.password !== password) {
                     console.log('Неверный пароль для пользователя:', username);
                     alert('Неверный пароль!');
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 300);
             } else {
                 // Режим регистрации
-                if (snapshot.exists()) {
+                if (doc.exists) {
                     console.log('Пользователь уже существует:', username);
                     alert('Пользователь с таким именем уже существует! Пожалуйста, выберите другое имя.');
                     return;
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('password').value = '';
             }
         } catch (error) {
-            console.error('Ошибка при работе с Realtime Database:', error);
+            console.error('Ошибка при работе с Firestore:', error);
             alert('Произошла ошибка при регистрации/входе. Проверь консоль для подробностей.');
         }
     });
