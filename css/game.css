@@ -37,7 +37,7 @@
     position: absolute;
     width: 10px;
     height: 10px;
-    background: url('../images/coin.png') no-repeat center;
+    background: url('https://mramyra.github.io/buy-a-horse/img/coin.png') no-repeat center;
     background-size: contain;
     pointer-events: none;
     animation: particleFade 0.5s ease-out forwards;
@@ -98,6 +98,8 @@ button:disabled {
     left: auto;
     color: #fff;
     padding: 5px 10px;
+
+
     border-radius: 5px;
     font-size: 12px;
     transition: transform 0.2s;
