@@ -68,16 +68,6 @@ button:disabled {
     cursor: not-allowed;
 }
 
-.toggle-btn {
-    background: linear-gradient(to right, #f59e0b, #fbbf24);
-    transition: all 0.3s ease;
-}
-
-.toggle-btn:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1);
-}
-
 /* Стили для уведомлений */
 #konamiMessage {
     position: fixed;
@@ -89,38 +79,6 @@ button:disabled {
     border-radius: 5px;
     display: none;
     font-size: 14px;
-}
-
-#konamiHint {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    left: auto;
-    color: #fff;
-    padding: 5px 10px;
-
-
-    border-radius: 5px;
-    font-size: 12px;
-    transition: transform 0.2s;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    animation: blink 2s infinite;
-}
-
-#konamiHint:hover {
-    transform: scale(1.05);
-}
-
-#konamiHint span.arrow {
-    font-size: 14px;
-}
-
-#konamiHint span.letter {
-    font-weight: bold;
-    font-size: 12px;
 }
 
 #achievementNotification {
@@ -143,8 +101,6 @@ button:disabled {
 /* Стили для достижений */
 .achievement-card {
     transition: background-color 0.3s;
-    word-break: break-word;
-    max-width: 100%;
 }
 
 .achievement-card.completed {
@@ -179,19 +135,6 @@ button:disabled {
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.3s ease;
-    overflow-x: hidden;
-}
-
-#achievementsModalContent {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    position: relative;
-    overflow-x: hidden;
 }
 
 #closeModal {
@@ -223,19 +166,6 @@ button:disabled {
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.3s ease;
-    overflow-x: hidden;
-}
-
-#leaderboardModalContent {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    position: relative;
-    overflow-x: hidden;
 }
 
 #closeLeaderboardModal {
@@ -272,118 +202,9 @@ button:disabled {
     font-weight: bold;
 }
 
-/* Стили для прогресс-бара в таблице лидеров */
-.w-full.bg-gray-300.rounded {
-    height: 16px;
-    background: #e5e7eb;
-    border-radius: 5px;
-}
-
-.bg-blue-500.h-4.rounded {
-    background: linear-gradient(to right, #3b82f6, #93c5fd);
-    height: 100%;
-    border-radius: 5px;
-    transition: width 0.3s ease;
-}
-
-/* Адаптивная вёрстка */
-@media (max-width: 640px) {
-    /* Уменьшаем отступы и размеры для модальных окон */
-    #achievementsModalContent, #leaderboardModalContent {
-        padding: 15px;
-        max-height: 70vh;
-        width: 95%;
-    }
-
-    /* Уменьшаем шрифты и отступы в таблице рейтинга */
-    #leaderboardTable th, #leaderboardTable td {
-        padding: 4px;
-        font-size: 0.75rem;
-    }
-
-    /* Уменьшаем размер прогресс-бара в таблице */
-    .w-full.bg-gray-300.rounded {
-        height: 12px;
-    }
-
-    /* Уменьшаем кликабельную область */
-    #clickArea {
-        width: 48px;
-        height: 48px;
-    }
-
-    /* Уменьшаем размер частиц */
-    .particle {
-        width: 6px;
-        height: 6px;
-    }
-
-    /* Уменьшаем шрифты и отступы в карточках улучшений */
-    .upgrade-card {
-        padding: 8px;
-    }
-
-    .upgrade-card h2 {
-        font-size: 0.9rem;
-    }
-
-    .upgrade-card p {
-        font-size: 0.75rem;
-    }
-
-    .upgrade-card button {
-        padding: 4px 8px;
-        font-size: 0.75rem;
-    }
-
-    /* Уменьшаем шрифты в заголовках и текстах */
-    h1.text-3xl {
-        font-size: 1.5rem;
-    }
-
-    .text-xl {
-        font-size: 1rem;
-    }
-
-    .text-lg {
-        font-size: 0.875rem;
-    }
-
-    /* Уменьшаем кнопки в шапке */
-    .space-x-4 button, .space-x-4 a {
-        padding: 4px 8px;
-        font-size: 0.75rem;
-    }
-
-    /* Уведомления */
-    #konamiMessage, #achievementNotification {
-        font-size: 12px;
-        padding: 6px 10px;
-    }
-
-    #konamiHint {
-        font-size: 10px;
-        padding: 4px 8px;
-    }
-
-    #konamiHint span.arrow {
-        font-size: 12px;
-    }
-
-    #konamiHint span.letter {
-        font-size: 10px;
-    }
-}
-
 @keyframes rotateCoin {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(360deg); }
-}
-
-@keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
 }
 
 @keyframes particleFade {
