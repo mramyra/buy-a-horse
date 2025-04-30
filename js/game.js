@@ -77,7 +77,7 @@ async function loadProgress() {
         konamiActive = data.konamiActive || false;
         if (konamiActive) {
             clickValue += 100000;
-            document.getElementById('konamiMessage').classList.remove('hidden');
+            document.getElementById('konamiMessage').style.display = 'block';
         }
 
         updateUI();
@@ -194,9 +194,9 @@ function updateAchievements() {
 // Показ уведомления о достижении
 function showAchievementNotification() {
     const notification = document.getElementById('achievementNotification');
-    notification.classList.remove('hidden');
+    notification.style.display = 'block';
     setTimeout(() => {
-        notification.classList.add('hidden');
+        notification.style.display = 'none';
     }, 3000);
 }
 
@@ -216,7 +216,7 @@ function updateAchievementsList() {
         achievementsList.appendChild(card);
     });
 
-    document.getElementById('achievementsModal').classList.remove('hidden');
+    document.getElementById('achievementsModal').style.display = 'block';
 }
 
 // Обновление рейтинга
@@ -236,23 +236,27 @@ async function updateLeaderboard() {
             users.push({
                 id: doc.id,
                 username: userData.username || 'Аноним',
-                horsesBought: userData.horsesBought || 0
+                horsesBought: userData.horsesBought || 0,
+                coins: userData.coins || 0
             });
         });
 
+        // Сортировка по количеству купленных коней (по убыванию)
         users.sort((a, b) => b.horsesBought - a.horsesBought);
 
+        // Заполнение таблицы
         users.forEach((user, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${index + 1}</td>
                 <td>${user.username}</td>
                 <td>${user.horsesBought}</td>
+                <td>${Math.floor(user.coins)}</td>
+                <td>${index + 1}</td>
             `;
             leaderboardBody.appendChild(row);
         });
 
-        document.getElementById('leaderboardModal').classList.remove('hidden');
+        document.getElementById('leaderboardModal').style.display = 'block';
     } catch (error) {
         console.error('Ошибка при обновлении рейтинга:', error);
     }
@@ -372,7 +376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!konamiActive) {
                 clickValue += 100000;
                 konamiActive = true;
-                document.getElementById('konamiMessage').classList.remove('hidden');
+                document.getElementById('konamiMessage').style.display = 'block';
                 achievements.find(a => a.id === 'konami').completed = true;
                 showAchievementNotification();
                 saveProgress();
@@ -385,7 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Закрытие модального окна достижений
     document.getElementById('closeModal').addEventListener('click', () => {
-        document.getElementById('achievementsModal').classList.add('hidden');
+        document.getElementById('achievementsModal').style.display = 'none';
     });
 
     // Показ рейтинга
@@ -393,7 +397,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Закрытие модального окна рейтинга
     document.getElementById('closeLeaderboardModal').addEventListener('click', () => {
-        document.getElementById('leaderboardModal').classList.add('hidden');
+        document.getElementById('leaderboardModal').style.display = 'none';
     });
 
     // Выход
@@ -401,10 +405,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.preventDefault();
         await saveProgress();
         localStorage.removeItem('currentUser');
-        document.getElementById('mainContainer').classList.add('fade-out');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 300);
+        window.location.href = 'index.html';
     });
 });
 
