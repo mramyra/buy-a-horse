@@ -24,7 +24,7 @@ const upgrades = {
 const achievementDefinitions = [
     { id: 'newbie', name: 'Новичок', description: 'Собери 100 монет', condition: () => coins >= 100, progress: () => Math.min(coins, 100), maxProgress: 100, reward: 50 },
     { id: 'farmer', name: 'Фермер', description: 'Купи 1 уровень "Ловкого работника"', condition: () => upgrades.worker.level >= 1, progress: () => upgrades.worker.level, maxProgress: 1, reward: 200 },
-    { id: 'konami', name: 'Секретный код', description: 'Активируй код Konami', condition: () => konamiActivated, progress: () => (konamiActivated ? 1 : 0), maxProgress: 1, reward: 500 },
+    { id: 'konami', name: 'Секретный kode', description: 'Активируй код Konami', condition: () => konamiActivated, progress: () => (konamiActivated ? 1 : 0), maxProgress: 1, reward: 500 },
     { id: 'millionaire', name: 'Миллионер', description: 'Собери 1,000,000 монет', condition: () => coins >= 1000000, progress: () => Math.min(coins, 1000000), maxProgress: 1000000, reward: 1000 },
     { id: 'clicker_10', name: 'Начинающий кликер', description: 'Сделай 10 кликов', condition: () => clicks >= 10, progress: () => Math.min(clicks, 10), maxProgress: 10, reward: 20 },
     { id: 'clicker_100', name: 'Уверенный кликер', description: 'Сделай 100 кликов', condition: () => clicks >= 100, progress: () => Math.min(clicks, 100), maxProgress: 100, reward: 100 },
@@ -118,8 +118,19 @@ async function saveProgress() {
     if (!currentUser) return; // Пропускаем, если пользователь не авторизован
 
     try {
-        // Обновляем только указанные поля, не затрагивая password
-        await window.db.collection('users').doc(currentUser).update({
+        // Получаем ссылку на документ пользователя
+        const userRef = window.db.collection('users').doc(currentUser);
+        // Загружаем текущие данные пользователя, чтобы сохранить поле password
+        const doc = await userRef.get();
+        let password = '';
+        if (doc.exists && doc.data().password) {
+            password = doc.data().password; // Сохраняем существующий пароль
+        }
+
+        // Сохраняем текущие данные пользователя, включая password
+        await userRef.set({
+            username: currentUser,
+            password: password, // Сохраняем поле password
             coins: coins,
             clickValue: clickValue,
             passiveIncome: passiveIncome,
@@ -189,8 +200,8 @@ function showAchievementNotification(achievement) {
 }
 
 // Функция расчёта рейтинга игрока для таблицы лидеров
-function calculateRating(horsesBought) {
-    return horsesBought; // Теперь рейтинг зависит только от количества купленных лошадей
+function calculateRating(horsesBought, coins) {
+    return (horsesBought * 1000) + coins;
 }
 
 // Функция отображения таблицы лидеров
@@ -209,27 +220,23 @@ async function renderLeaderboard() {
                 coins: user.coins || 0
             });
         });
-        // Сортируем пользователей по количеству купленных лошадей
-        users.sort((a, b) => calculateRating(b.horsesBought) - calculateRating(a.horsesBought));
-        // Отображаем пользователей в таблице с местами
-        users.forEach((user, index) => {
+        // Сортируем пользователей по рейтингу
+        users.sort((a, b) => calculateRating(b.horsesBought, b.coins) - calculateRating(a.horsesBought, a.coins));
+        // Отображаем пользователей в таблице
+        users.forEach(user => {
             const row = document.createElement('tr');
-            const progressPercentage = (user.coins / goal) * 100; // Прогресс к следующему коню
+            const rating = calculateRating(user.horsesBought, user.coins);
             row.innerHTML = `
-                <td>${index + 1}</td> <!-- Показываем место игрока -->
                 <td>${user.username}</td>
                 <td>${user.horsesBought}</td>
-                <td>
-                    <div class="w-full bg-gray-300 rounded">
-                        <div class="bg-blue-500 h-4 rounded" style="width: ${progressPercentage}%"></div>
-                    </div>
-                </td>
+                <td>${Math.floor(user.coins)}</td>
+                <td>${rating}</td>
             `;
             leaderboardBody.appendChild(row);
         });
     } catch (error) {
         console.error('Ошибка при загрузке рейтинга:', error);
-        alert('Не удалось загрузить рейтинг. Проверь консоль.');
+        alert('Не удалось загрузке рейтинга. Проверь консоль.');
     }
 }
 
@@ -270,11 +277,13 @@ function updateUI() {
 
     // Проверяем, достигнута ли цель для покупки лошади
     if (coins >= goal) {
-        horsesBought++; // Увеличиваем количество купленных лошадей
-        saveProgress(); // Сохраняем прогресс перед перенаправлением
+        horsesBought++;
         document.getElementById('mainContainer').classList.add('fade-out');
         setTimeout(() => {
             window.location.href = 'win.html'; // Перенаправляем на страницу победы
+            coins = 0; // Сбрасываем монеты
+            resetUpgrades(); // Сбрасываем улучшения
+            saveProgress(); // Сохраняем прогресс
         }, 300);
     }
 }

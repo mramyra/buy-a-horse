@@ -4,22 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Победа!</title>
-    <link rel="stylesheet" href="https://mramyra.github.io/buy-a-horse/css/tailwind.min.css">
-    <link rel="stylesheet" href="https://mramyra.github.io/buy-a-horse/css/common.css">
-    <link rel="stylesheet" href="https://mramyra.github.io/buy-a-horse/css/win.css">
-    <script src="https://mramyra.github.io/buy-a-horse/js/firebase-app.js"></script>
-    <script src="https://mramyra.github.io/buy-a-horse/js/firebase-firestore.js"></script>
-    <script src="https://mramyra.github.io/buy-a-horse/js/common.js"></script>
+    <link rel="icon" type="image/png" href="img/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Подключение Firebase SDK (Firestore) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <!-- Подключение CSS -->
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/win.css">
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div id="mainContainer" class="bg-white p-8 rounded-lg shadow-lg text-center fade-in">
-        <h1 class="text-4xl font-bold mb-4 text-green-600">Поздравляем!</h1>
-        <p class="text-xl mb-6">Вы купили коня! 🐴</p>
-        <div class="flex justify-center mb-6">
-            <img src="https://mramyra.github.io/buy-a-horse/img/horse.png" alt="Конь" class="w-32 h-32">
+<body class="font-sans">
+    <div id="mainContainer" class="min-h-screen flex flex-col items-center justify-center bg-opacity-75 bg-gray-100">
+        <img id="logo" src="img/logo.png" alt="Купи коня" class="mb-6">
+        <div class="text-3xl font-bold text-gray-800 readable-text mb-4">Поздравляем! Ты купил коня!</div>
+        <div class="flex space-x-4 mb-6">
+            <img src="img/winner.png" alt="Конь 1" class="w-40 h-40">
+            <img src="img/winner2.png" alt="Конь 2" class="w-40 h-40">
         </div>
-        <button id="playAgain" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">Играть снова</button>
+        <a href="game.html" id="playAgain" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Играть снова</a>
+        <a href="index.html" id="logout" class="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Выйти</a>
     </div>
-    <script src="https://mramyra.github.io/buy-a-horse/js/win.js"></script>
+
+    <!-- Подключение JS -->
+    <script src="js/common.js"></script>
+    <script src="js/win.js"></script>
 </body>
 </html>
