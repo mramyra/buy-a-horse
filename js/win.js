@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Получаем текущие данные
         const userData = doc.data();
-        let horsesBought = (userData.horsesBought || 0) + 1; // Увеличиваем количество купленных лошадей
+        let horsesBought = userData.horsesBought || 0; // horsesBought уже увеличен в game.js
 
         // Сбрасываем прогресс для новой игры
         const initialUpgrades = {
@@ -60,9 +60,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             { id: 'sickle_10', completed: false }
         ];
 
-        // Сохраняем обновлённые данные с увеличенным horsesBought и сброшенным прогрессом
+        // Сохраняем сброшенный прогресс, оставляя horsesBought неизменным
         await userRef.update({
-            horsesBought: horsesBought, // Обновляем количество купленных лошадей
             coins: 0, // Сбрасываем монеты
             clickValue: 1, // Сбрасываем значение клика
             passiveIncome: 0, // Сбрасываем пассивный доход
