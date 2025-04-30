@@ -1,465 +1,414 @@
 // game.js
 
-// Начальные переменные игры
-let coins = 0; // Количество монет
-let horsesBought = 0; // Количество купленных лошадей
-const goal = 10000000; // Цель для покупки лошади (10 миллионов монет)
-let clickValue = 1; // Значение монет за клик
-let passiveIncome = 0; // Пассивный доход (монеты в секунду)
-let konamiActivated = false; // Флаг активации кода Konami
-const KONAMI_BONUS_CLICK_VALUE = 100000; // Бонус за клик при активации кода Konami
-let clicks = 0; // Общее количество кликов
-let lastClicks = 0; // Количество кликов на последней проверке CPS
-let cps = 0; // Скорость кликов в секунду (CPS)
-
-// Объект с улучшениями (уровни, цены, эффекты)
-const upgrades = {
-    sickle: { level: 0, basePrice: 50, price: 50, baseEffect: 1, effect: 0 }, // Улучшение "Острый серп"
-    shovel: { level: 0, basePrice: 1000, price: 1000, baseEffect: 5, effect: 0 }, // Улучшение "Золотая лопата"
-    worker: { level: 0, basePrice: 200, price: 200, baseEffect: 1, effect: 0 }, // Улучшение "Ловкий работник"
-    stable: { level: 0, basePrice: 5000, price: 5000, baseEffect: 20, effect: 0 } // Улучшение "Конюшня мечты"
+// Глобальные переменные
+let coins = 0;
+let clickValue = 1;
+let passiveIncome = 0;
+let upgrades = {
+    sickle: { level: 0, basePrice: 50, price: 50, baseEffect: 1, effect: 0 },
+    shovel: { level: 0, basePrice: 1000, price: 1000, baseEffect: 5, effect: 0 },
+    worker: { level: 0, basePrice: 200, price: 200, baseEffect: 1, effect: 0 },
+    stable: { level: 0, basePrice: 5000, price: 5000, baseEffect: 20, effect: 0 }
 };
-
-// Определения достижений (условия, описания, награды)
-const achievementDefinitions = [
-    { id: 'newbie', name: 'Новичок', description: 'Собери 100 монет', condition: () => coins >= 100, progress: () => Math.min(coins, 100), maxProgress: 100, reward: 50 },
-    { id: 'farmer', name: 'Фермер', description: 'Купи 1 уровень "Ловкого работника"', condition: () => upgrades.worker.level >= 1, progress: () => upgrades.worker.level, maxProgress: 1, reward: 200 },
-    { id: 'konami', name: 'Секретный kode', description: 'Активируй код Konami', condition: () => konamiActivated, progress: () => (konamiActivated ? 1 : 0), maxProgress: 1, reward: 500 },
-    { id: 'millionaire', name: 'Миллионер', description: 'Собери 1,000,000 монет', condition: () => coins >= 1000000, progress: () => Math.min(coins, 1000000), maxProgress: 1000000, reward: 1000 },
-    { id: 'clicker_10', name: 'Начинающий кликер', description: 'Сделай 10 кликов', condition: () => clicks >= 10, progress: () => Math.min(clicks, 10), maxProgress: 10, reward: 20 },
-    { id: 'clicker_100', name: 'Уверенный кликер', description: 'Сделай 100 кликов', condition: () => clicks >= 100, progress: () => Math.min(clicks, 100), maxProgress: 100, reward: 100 },
-    { id: 'clicker_1000', name: 'Мастер кликов', description: 'Сделай 1,000 кликов', condition: () => clicks >= 1000, progress: () => Math.min(clicks, 1000), maxProgress: 1000, reward: 500 },
-    { id: 'sickle_5', name: 'Мастер серпа', description: 'Купи 5 уровней "Острого серпа"', condition: () => upgrades.sickle.level >= 5, progress: () => upgrades.sickle.level, maxProgress: 5, reward: 300 },
-    { id: 'shovel_3', name: 'Золотой копатель', description: 'Купи 3 уровня "Золотой лопаты"', condition: () => upgrades.shovel.level >= 3, progress: () => upgrades.shovel.level, maxProgress: 3, reward: 600 },
-    { id: 'worker_10', name: 'Бригадир', description: 'Купи 10 уровней "Ловкого работника"', condition: () => upgrades.worker.level >= 10, progress: () => upgrades.worker.level, maxProgress: 10, reward: 800 },
-    { id: 'stable_5', name: 'Владелец конюшни', description: 'Купи 5 уровней "Конюшни мечты"', condition: () => upgrades.stable.level >= 5, progress: () => upgrades.stable.level, maxProgress: 5, reward: 1000 },
-    { id: 'coins_5000', name: 'Собиратель', description: 'Собери 5,000 монет', condition: () => coins >= 5000, progress: () => Math.min(coins, 5000), maxProgress: 5000, reward: 150 },
-    { id: 'coins_50000', name: 'Богатей', description: 'Собери 50,000 монет', condition: () => coins >= 50000, progress: () => Math.min(coins, 50000), maxProgress: 50000, reward: 400 },
-    { id: 'coins_5000000', name: 'Полпути к мечте', description: 'Собери 5,000,000 монет', condition: () => coins >= 5000000, progress: () => Math.min(coins, 5000000), maxProgress: 5000000, reward: 2000 },
-    { id: 'passive_10', name: 'Пассивный доход', description: 'Достигни пассивного дохода 10 монет/сек', condition: () => passiveIncome >= 10, progress: () => Math.min(passiveIncome, 10), maxProgress: 10, reward: 300 },
-    { id: 'passive_50', name: 'Стабильный доход', description: 'Достигни пассивного дохода 50 монет/сек', condition: () => passiveIncome >= 50, progress: () => Math.min(passiveIncome, 50), maxProgress: 50, reward: 700 },
-    { id: 'passive_100', name: 'Магнат', description: 'Достигни пассивного дохода 100 монет/сек', condition: () => passiveIncome >= 100, progress: () => Math.min(passiveIncome, 100), maxProgress: 100, reward: 1500 },
-    { id: 'click_value_10', name: 'Усилитель кликов', description: 'Достигни 10 монет за клик', condition: () => clickValue >= 10, progress: () => Math.min(clickValue, 10), maxProgress: 10, reward: 250 },
-    { id: 'click_value_50', name: 'Мощный клик', description: 'Достигни 50 монет за клик', condition: () => clickValue >= 50, progress: () => Math.min(clickValue, 50), maxProgress: 50, reward: 800 },
-    { id: 'upgrades_5', name: 'Покупатель', description: 'Купи 5 любых улучшений', condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 5, progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 5), maxProgress: 5, reward: 200 },
-    { id: 'upgrades_20', name: 'Коллекционер', description: 'Купи 20 любых улучшений', condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 20, progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 20), maxProgress: 20, reward: 600 },
-    { id: 'upgrades_50', name: 'Инвестор', description: 'Купи 50 любых улучшений', condition: () => (upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level) >= 50, progress: () => Math.min(upgrades.sickle.level + upgrades.shovel.level + upgrades.worker.level + upgrades.stable.level, 50), maxProgress: 50, reward: 1200 },
-    { id: 'coins_100000', name: 'Сотня тысяч', description: 'Собери 100,000 монет', condition: () => coins >= 100000, progress: () => Math.min(coins, 100000), maxProgress: 100000, reward: 500 },
-    { id: 'sickle_10', name: 'Супер серп', description: 'Купи 10 уровней "Острого серпа"', condition: () => upgrades.sickle.level >= 10, progress: () => upgrades.sickle.level, maxProgress: 10, reward: 600 }
+let achievements = [
+    { id: 'newbie', name: 'Новичок', description: 'Собери 100 монет', target: 100, progress: 0, completed: false },
+    { id: 'farmer', name: 'Фермер', description: 'Собери 1000 монет', target: 1000, progress: 0, completed: false },
+    { id: 'konami', name: 'Konami Код', description: 'Активируй код Konami', target: 1, progress: 0, completed: false },
+    { id: 'millionaire', name: 'Миллионер', description: 'Собери 1,000,000 монет', target: 1000000, progress: 0, completed: false },
+    { id: 'clicker_10', name: 'Кликер I', description: 'Сделай 10 кликов', target: 10, progress: 0, completed: false },
+    { id: 'clicker_100', name: 'Кликер II', description: 'Сделай 100 кликов', target: 100, progress: 0, completed: false },
+    { id: 'clicker_1000', name: 'Кликер III', description: 'Сделай 1000 кликов', target: 1000, progress: 0, completed: false },
+    { id: 'sickle_5', name: 'Мастер серпа I', description: 'Улучши серп до 5 уровня', target: 5, progress: 0, completed: false },
+    { id: 'shovel_3', name: 'Мастер лопаты I', description: 'Улучши лопату до 3 уровня', target: 3, progress: 0, completed: false },
+    { id: 'worker_10', name: 'Работодатель I', description: 'Нанимай 10 работников', target: 10, progress: 0, completed: false },
+    { id: 'stable_5', name: 'Коннозаводчик I', description: 'Построй 5 конюшен', target: 5, progress: 0, completed: false },
+    { id: 'coins_5000', name: 'Богач I', description: 'Собери 5000 монет', target: 5000, progress: 0, completed: false },
+    { id: 'coins_50000', name: 'Богач II', description: 'Собери 50000 монет', target: 50000, progress: 0, completed: false },
+    { id: 'coins_5000000', name: 'Богач III', description: 'Собери 5000000 монет', target: 5000000, progress: 0, completed: false },
+    { id: 'passive_10', name: 'Пассивный доход I', description: 'Достигни 10 монет/сек', target: 10, progress: 0, completed: false },
+    { id: 'passive_50', name: 'Пассивный доход II', description: 'Достигни 50 монет/сек', target: 50, progress: 0, completed: false },
+    { id: 'passive_100', name: 'Пассивный доход III', description: 'Достигни 100 монет/сек', target: 100, progress: 0, completed: false },
+    { id: 'click_value_10', name: 'Сила клика I', description: 'Достигни 10 монет за клик', target: 10, progress: 0, completed: false },
+    { id: 'click_value_50', name: 'Сила клика II', description: 'Достигни 50 монет за клик', target: 50, progress: 0, completed: false },
+    { id: 'upgrades_5', name: 'Покупатель I', description: 'Купи 5 улучшений', target: 5, progress: 0, completed: false },
+    { id: 'upgrades_20', name: 'Покупатель II', description: 'Купи 20 улучшений', target: 20, progress: 0, completed: false },
+    { id: 'upgrades_50', name: 'Покупатель III', description: 'Купи 50 улучшений', target: 50, progress: 0, completed: false },
+    { id: 'coins_100000', name: 'Магнат', description: 'Собери 100,000 монет', target: 100000, progress: 0, completed: false },
+    { id: 'sickle_10', name: 'Мастер серпа II', description: 'Улучши серп до 10 уровня', target: 10, progress: 0, completed: false }
 ];
-
-// Инициализация достижений (все изначально не выполнены)
-let achievements = achievementDefinitions.map(def => ({
-    id: def.id,
-    completed: false
-}));
-
-// Получаем текущего пользователя из localStorage
+let horsesBought = 0;
+let clickCount = 0;
+let totalUpgradesBought = 0;
+let konamiActive = false;
+const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+let konamiProgress = [];
 const currentUser = localStorage.getItem('currentUser');
+const goal = 10000000;
 
-// Функция загрузки прогресса игрока из Firestore
+// Функция загрузки прогресса
 async function loadProgress() {
-    // Проверяем, есть ли текущий пользователь
     if (!currentUser) {
-        window.location.href = 'index.html'; // Перенаправляем на главную, если пользователь не авторизован
+        console.warn('Пользователь не авторизован. Пропускаем загрузку прогресса.');
         return;
     }
 
     try {
-        // Запрашиваем данные пользователя из Firestore
+        if (!window.db) {
+            throw new Error('Firestore не инициализирован. Проверь подключение Firebase и common.js.');
+        }
+
         const userRef = window.db.collection('users').doc(currentUser);
         const doc = await userRef.get();
-        if (doc.exists) {
-            // Если пользователь существует, загружаем его данные
-            const data = doc.data();
-            coins = data.coins || 0;
-            clickValue = data.clickValue || 1;
-            passiveIncome = data.passiveIncome || 0;
-            horsesBought = data.horsesBought || 0;
-            // Загружаем уровни улучшений
-            for (const key in upgrades) {
-                if (data.upgrades && data.upgrades[key]) {
-                    upgrades[key].level = data.upgrades[key].level;
-                    upgrades[key].price = data.upgrades[key].price;
-                    upgrades[key].effect = data.upgrades[key].effect;
-                }
-            }
-            // Загружаем достижения
-            if (data.achievements) {
-                achievements = data.achievements.map(saved => {
-                    const def = achievementDefinitions.find(def => def.id === saved.id);
-                    return {
-                        id: saved.id,
-                        completed: saved.completed || false
-                    };
-                });
-            }
-        } else {
-            // Если пользователь новый, создаём начальные данные
-            await userRef.set({
-                username: currentUser,
-                coins: 0,
-                clickValue: 1,
-                passiveIncome: 0,
-                horsesBought: 0,
-                upgrades: upgrades,
-                achievements: achievements
-            });
+        if (!doc.exists) {
+            console.error('Пользователь не найден:', currentUser);
+            window.location.href = 'index.html';
+            return;
         }
-        updateUI(); // Обновляем интерфейс
+
+        const data = doc.data();
+        coins = data.coins || 0;
+        clickValue = data.clickValue || 1;
+        passiveIncome = data.passiveIncome || 0;
+        upgrades = data.upgrades || upgrades;
+        achievements = data.achievements || achievements;
+        horsesBought = data.horsesBought || 0;
+        clickCount = data.clickCount || 0;
+        totalUpgradesBought = data.totalUpgradesBought || 0;
+        konamiActive = data.konamiActive || false;
+        if (konamiActive) {
+            clickValue += 100000;
+            document.getElementById('konamiMessage').classList.remove('hidden');
+        }
+
+        updateUI();
     } catch (error) {
         console.error('Ошибка при загрузке прогресса:', error);
-        alert('Не удалось загрузить прогресс. Проверь консоль.');
     }
 }
 
-// Функция сохранения прогресса игрока в Firestore
+// Функция сохранения прогресса
 async function saveProgress() {
-    if (!currentUser) return; // Пропускаем, если пользователь не авторизован
+    if (!currentUser) {
+        console.warn('Пользователь не авторизован. Пропускаем сохранение прогресса.');
+        return;
+    }
 
     try {
-        // Получаем ссылку на документ пользователя
-        const userRef = window.db.collection('users').doc(currentUser);
-        // Загружаем текущие данные пользователя, чтобы сохранить поле password
-        const doc = await userRef.get();
-        let password = '';
-        if (doc.exists && doc.data().password) {
-            password = doc.data().password; // Сохраняем существующий пароль
+        if (!window.db) {
+            throw new Error('Firestore не инициализирован. Проверь подключение Firebase и common.js.');
         }
 
-        // Сохраняем текущие данные пользователя, включая password
+        const userRef = window.db.collection('users').doc(currentUser);
         await userRef.set({
-            username: currentUser,
-            password: password, // Сохраняем поле password
             coins: coins,
             clickValue: clickValue,
             passiveIncome: passiveIncome,
-            horsesBought: horsesBought,
             upgrades: upgrades,
-            achievements: achievements
-        });
+            achievements: achievements,
+            horsesBought: horsesBought,
+            clickCount: clickCount,
+            totalUpgradesBought: totalUpgradesBought,
+            konamiActive: konamiActive
+        }, { merge: true });
     } catch (error) {
         console.error('Ошибка при сохранении прогресса:', error);
-        alert('Не удалось сохранить прогресс. Проверь консоль.');
     }
 }
 
-// Функция отображения достижений в модальном окне
-function renderAchievements() {
-    const achievementsList = document.getElementById('achievementsList');
-    achievementsList.innerHTML = ''; // Очищаем список
+// Функция проверки авторизации
+function checkAuth() {
+    if (!currentUser) {
+        window.location.href = 'index.html';
+    }
+}
+
+// Обновление UI
+function updateUI() {
+    document.getElementById('coinCount').textContent = Math.floor(coins);
+    document.getElementById('progressText').textContent = `${Math.floor(coins)} / ${goal}`;
+    document.getElementById('progressBar').style.width = `${(coins / goal) * 100}%`;
+    document.getElementById('cpsCount').textContent = passiveIncome;
+
+    document.getElementById('sickleLevel').textContent = upgrades.sickle.level;
+    document.getElementById('sickleEffect').textContent = upgrades.sickle.effect;
+    document.getElementById('sicklePrice').textContent = Math.floor(upgrades.sickle.price);
+
+    document.getElementById('shovelLevel').textContent = upgrades.shovel.level;
+    document.getElementById('shovelEffect').textContent = upgrades.shovel.effect;
+    document.getElementById('shovelPrice').textContent = Math.floor(upgrades.shovel.price);
+
+    document.getElementById('workerLevel').textContent = upgrades.worker.level;
+    document.getElementById('workerEffect').textContent = upgrades.worker.effect;
+    document.getElementById('workerPrice').textContent = Math.floor(upgrades.worker.price);
+
+    document.getElementById('stableLevel').textContent = upgrades.stable.level;
+    document.getElementById('stableEffect').textContent = upgrades.stable.effect;
+    document.getElementById('stablePrice').textContent = Math.floor(upgrades.stable.price);
+}
+
+// Проверка достижения цели
+function checkGoal() {
+    if (coins >= goal) {
+        coins -= goal;
+        horsesBought += 1;
+        saveProgress().then(() => {
+            window.location.href = 'win.html';
+        });
+    }
+}
+
+// Обновление достижений
+function updateAchievements() {
     achievements.forEach(achievement => {
-        const def = achievementDefinitions.find(d => d.id === achievement.id);
-        const card = document.createElement('div');
-        card.classList.add('achievement-card', 'p-4', 'rounded', 'shadow', 'bg-gray-100');
-        if (achievement.completed) {
-            card.classList.add('completed'); // Отмечаем выполненное достижение
+        if (achievement.completed) return;
+
+        let progress = 0;
+        if (achievement.id.startsWith('coins_')) {
+            progress = coins;
+        } else if (achievement.id.startsWith('clicker_')) {
+            progress = clickCount;
+        } else if (achievement.id === 'sickle_5' || achievement.id === 'sickle_10') {
+            progress = upgrades.sickle.level;
+        } else if (achievement.id === 'shovel_3') {
+            progress = upgrades.shovel.level;
+        } else if (achievement.id === 'worker_10') {
+            progress = upgrades.worker.level;
+        } else if (achievement.id === 'stable_5') {
+            progress = upgrades.stable.level;
+        } else if (achievement.id.startsWith('passive_')) {
+            progress = passiveIncome;
+        } else if (achievement.id.startsWith('click_value_')) {
+            progress = clickValue;
+        } else if (achievement.id.startsWith('upgrades_')) {
+            progress = totalUpgradesBought;
         }
-        const progress = def.progress();
-        const maxProgress = def.maxProgress;
-        const progressPercentage = (progress / maxProgress) * 100;
+
+        achievement.progress = progress;
+        if (progress >= achievement.target) {
+            achievement.completed = true;
+            showAchievementNotification();
+        }
+    });
+}
+
+// Показ уведомления о достижении
+function showAchievementNotification() {
+    const notification = document.getElementById('achievementNotification');
+    notification.classList.remove('hidden');
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 3000);
+}
+
+// Обновление списка достижений
+function updateAchievementsList() {
+    const achievementsList = document.getElementById('achievementsList');
+    achievementsList.innerHTML = '';
+
+    achievements.forEach(achievement => {
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-lg shadow ${achievement.completed ? 'bg-yellow-200' : 'bg-gray-200'}`;
         card.innerHTML = `
-            <div>
-                <h3 class="font-bold">${def.name}</h3>
-                <p class="text-sm">${def.description}</p>
-                <p class="text-sm">Прогресс: ${progress}/${maxProgress}</p>
-                <div class="achievement-progress-bar">
-                    <div class="achievement-progress-bar-fill" style="width: ${progressPercentage}%"></div>
-                </div>
-                <p class="text-sm">Награда: ${def.reward} монет</p>
-                <p class="text-sm font-semibold">${achievement.completed ? 'Выполнено!' : 'Не выполнено'}</p>
-            </div>
+            <h3 class="text-lg font-bold">${achievement.name}</h3>
+            <p>${achievement.description}</p>
+            <p>Прогресс: ${Math.min(achievement.progress, achievement.target)} / ${achievement.target}</p>
         `;
         achievementsList.appendChild(card);
     });
+
+    document.getElementById('achievementsModal').classList.remove('hidden');
 }
 
-// Функция проверки выполнения достижений
-function checkAchievements() {
-    achievements.forEach(achievement => {
-        if (achievement.completed) return; // Пропускаем уже выполненные достижения
-        const def = achievementDefinitions.find(d => d.id === achievement.id);
-        if (def.condition()) {
-            // Если условие достижения выполнено
-            achievement.completed = true;
-            coins += def.reward; // Начисляем награду
-            showAchievementNotification(def); // Показываем уведомление
-            saveProgress(); // Сохраняем прогресс
-        }
-    });
-}
-
-// Функция отображения уведомления о выполнении достижения
-function showAchievementNotification(achievement) {
-    const notification = document.getElementById('achievementNotification');
-    notification.textContent = `Достижение "${achievement.name}" выполнено! +${achievement.reward} монет`;
-    notification.style.display = 'block';
-    setTimeout(() => {
-        notification.style.display = 'none'; // Скрываем через 3 секунды
-    }, 3000);
-}
-
-// Функция расчёта рейтинга игрока для таблицы лидеров
-function calculateRating(horsesBought, coins) {
-    return (horsesBought * 1000) + coins;
-}
-
-// Функция отображения таблицы лидеров
-async function renderLeaderboard() {
-    const leaderboardBody = document.getElementById('leaderboardBody');
-    leaderboardBody.innerHTML = ''; // Очищаем таблицу
+// Обновление рейтинга
+async function updateLeaderboard() {
     try {
-        // Запрашиваем всех пользователей из Firestore
-        const snapshot = await window.db.collection('users').get();
+        if (!window.db) {
+            throw new Error('Firestore не инициализирован. Проверь подключение Firebase и common.js.');
+        }
+
+        const leaderboardBody = document.getElementById('leaderboardBody');
+        leaderboardBody.innerHTML = '';
+
+        const usersSnapshot = await window.db.collection('users').get();
         const users = [];
-        snapshot.forEach(doc => {
-            const user = doc.data();
+        usersSnapshot.forEach(doc => {
+            const userData = doc.data();
             users.push({
-                username: user.username,
-                horsesBought: user.horsesBought || 0,
-                coins: user.coins || 0
+                id: doc.id,
+                username: userData.username || 'Аноним',
+                horsesBought: userData.horsesBought || 0
             });
         });
-        // Сортируем пользователей по рейтингу
-        users.sort((a, b) => calculateRating(b.horsesBought, b.coins) - calculateRating(a.horsesBought, a.coins));
-        // Отображаем пользователей в таблице
-        users.forEach(user => {
+
+        users.sort((a, b) => b.horsesBought - a.horsesBought);
+
+        users.forEach((user, index) => {
             const row = document.createElement('tr');
-            const rating = calculateRating(user.horsesBought, user.coins);
             row.innerHTML = `
+                <td>${index + 1}</td>
                 <td>${user.username}</td>
                 <td>${user.horsesBought}</td>
-                <td>${Math.floor(user.coins)}</td>
-                <td>${rating}</td>
             `;
             leaderboardBody.appendChild(row);
         });
+
+        document.getElementById('leaderboardModal').classList.remove('hidden');
     } catch (error) {
-        console.error('Ошибка при загрузке рейтинга:', error);
-        alert('Не удалось загрузке рейтинга. Проверь консоль.');
+        console.error('Ошибка при обновлении рейтинга:', error);
     }
 }
 
-// Функция обновления интерфейса игры
-function updateUI() {
-    // Обновляем отображение монет и прогресса
-    document.getElementById('coinCount').textContent = Math.floor(coins);
-    document.getElementById('progressBar').style.width = `${Math.min((coins / goal) * 100, 100)}%`;
-    document.getElementById('progressText').textContent = `${Math.floor(coins)} / ${goal}`;
+// Пассивный доход
+function passiveIncomeLoop() {
+    setInterval(() => {
+        coins += passiveIncome;
+        updateUI();
+        updateAchievements();
+        saveProgress();
+        checkGoal();
+    }, 1000);
+}
 
-    // Объект для соответствия улучшений и элементов интерфейса
-    const upgradeElements = {
-        sickle: { level: 'sickleLevel', effect: 'sickleEffect', price: 'sicklePrice', button: 'buySickle', card: 'sickleCard' },
-        shovel: { level: 'shovelLevel', effect: 'shovelEffect', price: 'shovelPrice', button: 'buyShovel', card: 'shovelCard' },
-        worker: { level: 'workerLevel', effect: 'workerEffect', price: 'workerPrice', button: 'buyWorker', card: 'workerCard' },
-        stable: { level: 'stableLevel', effect: 'stableEffect', price: 'stablePrice', button: 'buyStable', card: 'stableCard' }
-    };
+// Создание частиц при клике
+function createParticle(x, y) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    const randomX = (Math.random() - 0.5) * 100;
+    const randomY = (Math.random() - 0.5) * 100;
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.setProperty('--x', `${randomX}px`);
+    particle.style.setProperty('--y', `${randomY}px`);
+    document.getElementById('clickArea').appendChild(particle);
+    setTimeout(() => particle.remove(), 500);
+}
 
-    // Обновляем информацию об улучшениях
-    for (const key in upgrades) {
-        const el = upgradeElements[key];
-        document.getElementById(el.level).textContent = upgrades[key].level;
-        document.getElementById(el.effect).textContent = upgrades[key].effect;
-        document.getElementById(el.price).textContent = Math.ceil(upgrades[key].price);
-        const button = document.getElementById(el.button);
-        const card = document.getElementById(el.card);
-        // Блокируем кнопку, если недостаточно монет
-        if (coins < upgrades[key].price) {
-            button.disabled = true;
-            card.classList.add('locked');
-        } else {
-            button.disabled = false;
-            card.classList.remove('locked');
+// Обработчики событий
+document.addEventListener('DOMContentLoaded', async () => {
+    checkAuth();
+    await loadProgress();
+    passiveIncomeLoop();
+
+    // Клик по монетке
+    const clickArea = document.getElementById('clickArea');
+    clickArea.addEventListener('click', (e) => {
+        coins += clickValue;
+        clickCount++;
+        clickArea.querySelector('img').classList.add('clicked');
+        const rect = clickArea.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        createParticle(x, y);
+        updateUI();
+        updateAchievements();
+        checkGoal();
+        saveProgress();
+    });
+
+    // Покупка улучшений
+    document.getElementById('buySickle').addEventListener('click', async () => {
+        if (coins >= upgrades.sickle.price) {
+            coins -= upgrades.sickle.price;
+            upgrades.sickle.level++;
+            upgrades.sickle.price = upgrades.sickle.basePrice * Math.pow(1.15, upgrades.sickle.level);
+            upgrades.sickle.effect = upgrades.sickle.baseEffect * upgrades.sickle.level;
+            clickValue += upgrades.sickle.baseEffect;
+            totalUpgradesBought++;
+            updateUI();
+            updateAchievements();
+            await saveProgress();
         }
-    }
+    });
 
-    checkAchievements(); // Проверяем достижения
+    document.getElementById('buyShovel').addEventListener('click', async () => {
+        if (coins >= upgrades.shovel.price) {
+            coins -= upgrades.shovel.price;
+            upgrades.shovel.level++;
+            upgrades.shovel.price = upgrades.shovel.basePrice * Math.pow(1.15, upgrades.shovel.level);
+            upgrades.shovel.effect = upgrades.shovel.baseEffect * upgrades.shovel.level;
+            clickValue += upgrades.shovel.baseEffect;
+            totalUpgradesBought++;
+            updateUI();
+            updateAchievements();
+            await saveProgress();
+        }
+    });
 
-    // Проверяем, достигнута ли цель для покупки лошади
-    if (coins >= goal) {
-        horsesBought++;
+    document.getElementById('buyWorker').addEventListener('click', async () => {
+        if (coins >= upgrades.worker.price) {
+            coins -= upgrades.worker.price;
+            upgrades.worker.level++;
+            upgrades.worker.price = upgrades.worker.basePrice * Math.pow(1.15, upgrades.worker.level);
+            upgrades.worker.effect = upgrades.worker.baseEffect * upgrades.worker.level;
+            passiveIncome += upgrades.worker.baseEffect;
+            totalUpgradesBought++;
+            updateUI();
+            updateAchievements();
+            await saveProgress();
+        }
+    });
+
+    document.getElementById('buyStable').addEventListener('click', async () => {
+        if (coins >= upgrades.stable.price) {
+            coins -= upgrades.stable.price;
+            upgrades.stable.level++;
+            upgrades.stable.price = upgrades.stable.basePrice * Math.pow(1.15, upgrades.stable.level);
+            upgrades.stable.effect = upgrades.stable.baseEffect * upgrades.stable.level;
+            passiveIncome += upgrades.stable.baseEffect;
+            totalUpgradesBought++;
+            updateUI();
+            updateAchievements();
+            await saveProgress();
+        }
+    });
+
+    // Код Konami
+    document.addEventListener('keydown', (e) => {
+        konamiProgress.push(e.key);
+        if (konamiProgress.length > konamiCode.length) {
+            konamiProgress.shift();
+        }
+        if (konamiProgress.join('') === konamiCode.join('')) {
+            if (!konamiActive) {
+                clickValue += 100000;
+                konamiActive = true;
+                document.getElementById('konamiMessage').classList.remove('hidden');
+                achievements.find(a => a.id === 'konami').completed = true;
+                showAchievementNotification();
+                saveProgress();
+            }
+        }
+    });
+
+    // Показ достижений
+    document.getElementById('showAchievements').addEventListener('click', updateAchievementsList);
+
+    // Закрытие модального окна достижений
+    document.getElementById('closeModal').addEventListener('click', () => {
+        document.getElementById('achievementsModal').classList.add('hidden');
+    });
+
+    // Показ рейтинга
+    document.getElementById('showLeaderboard').addEventListener('click', updateLeaderboard);
+
+    // Закрытие модального окна рейтинга
+    document.getElementById('closeLeaderboardModal').addEventListener('click', () => {
+        document.getElementById('leaderboardModal').classList.add('hidden');
+    });
+
+    // Выход
+    document.getElementById('logout').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await saveProgress();
+        localStorage.removeItem('currentUser');
         document.getElementById('mainContainer').classList.add('fade-out');
         setTimeout(() => {
-            window.location.href = 'win.html'; // Перенаправляем на страницу победы
-            coins = 0; // Сбрасываем монеты
-            resetUpgrades(); // Сбрасываем улучшения
-            saveProgress(); // Сохраняем прогресс
+            window.location.href = 'index.html';
         }, 300);
-    }
-}
-
-// Функция сброса улучшений после покупки лошади
-function resetUpgrades() {
-    for (const key in upgrades) {
-        upgrades[key].level = 0;
-        upgrades[key].price = upgrades[key].basePrice;
-        upgrades[key].effect = 0;
-    }
-    clickValue = 1;
-    passiveIncome = 0;
-    // Сбрасываем достижения
-    achievements = achievementDefinitions.map(def => ({
-        id: def.id,
-        completed: false
-    }));
-    renderAchievements();
-}
-
-// Код Konami для активации бонуса
-const konamiCode = [
-    'ArrowUp', 'ArrowUp',
-    'ArrowDown', 'ArrowDown',
-    'ArrowLeft', 'ArrowRight',
-    'ArrowLeft', 'ArrowRight',
-    'KeyB', 'KeyA'
-];
-let konamiPosition = 0;
-
-// Обработчик ввода кода Konami
-document.addEventListener('keydown', (e) => {
-    const requiredKey = konamiCode[konamiPosition];
-    if (e.code === requiredKey) {
-        konamiPosition++;
-        if (konamiPosition === konamiCode.length) {
-            activateKonami(); // Активируем бонус
-            konamiPosition = 0;
-        }
-    } else {
-        konamiPosition = 0; // Сбрасываем, если код введён неверно
-    }
+    });
 });
 
-// Функция активации бонуса Konami
-function activateKonami() {
-    konamiActivated = true;
-    const konamiMessage = document.getElementById('konamiMessage');
-    konamiMessage.style.display = 'block';
-    setTimeout(() => {
-        konamiMessage.style.display = 'none'; // Скрываем сообщение через 3 секунды
-    }, 3000);
-    updateUI();
-}
-
-// Обработчик кликов по области для добычи монет
-const clickArea = document.getElementById('clickArea');
-clickArea.addEventListener('click', (e) => {
-    // Начисляем монеты за клик (с учётом бонуса Konami)
-    coins += konamiActivated ? KONAMI_BONUS_CLICK_VALUE : clickValue;
-    clicks++; // Увеличиваем счётчик кликов
-    clickArea.querySelector('img').classList.add('clicked'); // Анимация клика
-
-    // Создаём частицы для визуального эффекта
-    for (let i = 0; i < 3; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
-        const x = (Math.random() - 0.5) * 100;
-        const y = (Math.random() - 0.5) * 100;
-        particle.style.left = `${e.offsetX}px`;
-        particle.style.top = `${e.offsetY}px`;
-        particle.style.setProperty('--x', `${x}px`);
-        particle.style.setProperty('--y', `${y}px`);
-        clickArea.appendChild(particle);
-        setTimeout(() => particle.remove(), 500); // Удаляем частицу через 500 мс
-    }
-
-    saveProgress(); // Сохраняем прогресс
-    updateUI(); // Обновляем интерфейс
+// Сохранение прогресса перед обновлением страницы
+window.addEventListener('beforeunload', async () => {
+    await saveProgress();
 });
-
-// Подсчёт CPS (кликов в секунду)
-setInterval(() => {
-    cps = clicks - lastClicks;
-    lastClicks = clicks;
-    document.getElementById('cpsCount').textContent = cps;
-}, 1000);
-
-// Функция покупки улучшения
-function buyUpgrade(upgradeKey) {
-    const upgrade = upgrades[upgradeKey];
-    if (coins >= upgrade.price) {
-        // Если хватает монет, покупаем улучшение
-        coins -= upgrade.price;
-        upgrade.level++;
-        upgrade.price = upgrade.basePrice * Math.pow(1.15, upgrade.level); // Увеличиваем цену
-        upgrade.effect = upgrade.baseEffect * upgrade.level; // Увеличиваем эффект
-
-        // Обновляем значение клика или пассивного дохода
-        if (upgradeKey === 'sickle' || upgradeKey === 'shovel') {
-            clickValue = 1 + upgrades.sickle.effect + upgrades.shovel.effect;
-        } else {
-            passiveIncome = upgrades.worker.effect + upgrades.stable.effect;
-        }
-
-        // Добавляем визуальный эффект покупки
-        const card = document.getElementById(`${upgradeKey}Card`);
-        card.classList.add('purchased');
-        setTimeout(() => card.classList.remove('purchased'), 500);
-
-        saveProgress(); // Сохраняем прогресс
-        updateUI(); // Обновляем интерфейс
-    } else {
-        alert('Недостаточно монет!');
-    }
-}
-
-// Привязываем обработчики к кнопкам покупки улучшений
-document.getElementById('buySickle').addEventListener('click', () => buyUpgrade('sickle'));
-document.getElementById('buyShovel').addEventListener('click', () => buyUpgrade('shovel'));
-document.getElementById('buyWorker').addEventListener('click', () => buyUpgrade('worker'));
-document.getElementById('buyStable').addEventListener('click', () => buyUpgrade('stable'));
-
-// Таймер для начисления пассивного дохода (каждую секунду)
-setInterval(() => {
-    coins += passiveIncome;
-    saveProgress();
-    updateUI();
-}, 1000);
-
-// Обработчик выхода из аккаунта
-document.getElementById('logout').addEventListener('click', (e) => {
-    e.preventDefault();
-    logout(); // Вызываем функцию выхода
-});
-
-// Управление модальным окном достижений
-const achievementsModal = document.getElementById('achievementsModal');
-const showAchievementsBtn = document.getElementById('showAchievements');
-const closeModalBtn = document.getElementById('closeModal');
-
-showAchievementsBtn.addEventListener('click', () => {
-    renderAchievements();
-    achievementsModal.style.display = 'flex'; // Показываем модальное окно
-});
-
-closeModalBtn.addEventListener('click', () => {
-    achievementsModal.style.display = 'none'; // Скрываем модальное окно
-});
-
-window.addEventListener('click', (e) => {
-    if (e.target === achievementsModal) {
-        achievementsModal.style.display = 'none'; // Скрываем при клике вне окна
-    }
-});
-
-// Управление модальным окном таблицы лидеров
-const leaderboardModal = document.getElementById('leaderboardModal');
-const showLeaderboardBtn = document.getElementById('showLeaderboard');
-const closeLeaderboardModalBtn = document.getElementById('closeLeaderboardModal');
-
-showLeaderboardBtn.addEventListener('click', () => {
-    renderLeaderboard();
-    leaderboardModal.style.display = 'flex'; // Показываем модальное окно
-});
-
-closeLeaderboardModalBtn.addEventListener('click', () => {
-    leaderboardModal.style.display = 'none'; // Скрываем модальное окно
-});
-
-window.addEventListener('click', (e) => {
-    if (e.target === leaderboardModal) {
-        leaderboardModal.style.display = 'none'; // Скрываем при клике вне окна
-    }
-});
-
-// Загружаем прогресс при запуске игры
-loadProgress();

@@ -3,142 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Купи коня</title>
-    <link rel="icon" type="image/png" href="img/logo.png">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Подключение Firebase SDK (Firestore) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-    <!-- Подключение CSS -->
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/game.css">
+    <title>Купи коня!</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://mramyra.github.io/buy-a-horse/css/common.css">
+    <link rel="stylesheet" href="https://mramyra.github.io/buy-a-horse/css/game.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://mramyra.github.io/buy-a-horse/js/common.js"></script>
 </head>
-<body class="font-sans">
-    <div id="mainContainer" class="min-h-screen flex flex-col items-center justify-center bg-opacity-75 bg-gray-100">
-        <!-- Подсказка для кода Konami с иконками -->
-        <div id="konamiHint">
-            <span>Попробуй:</span>
-            <span class="arrow">↑</span><span class="arrow">↑</span>
-            <span class="arrow">↓</span><span class="arrow">↓</span>
-            <span class="arrow">←</span><span class="arrow">→</span>
-            <span class="arrow">←</span><span class="arrow">→</span>
-            <span class="letter">B</span><span class="letter">A</span>
-        </div>
-
-        <!-- Логотип -->
-        <img id="logo" src="img/logo.png" alt="Купи коня" class="mb-6">
-
-        <!-- Счётчик монет -->
-        <div class="text-2xl mb-4 text-gray-800 readable-text">Монеты: <span id="coinCount" class="font-bold">0</span></div>
-
-        <!-- Счётчик CPS -->
-        <div class="text-sm mb-4 text-gray-800 readable-text">Кликов в секунду: <span id="cpsCount">0</span></div>
-
-        <!-- Прогресс -->
-        <div class="w-64 bg-gray-300 rounded-full h-4 mb-4">
-            <div id="progressBar" class="progress-bar h-4 rounded-full" style="width: 0%"></div>
-        </div>
-        <p class="text-sm text-gray-800 readable-text mb-4">Прогресс: <span id="progressText">0 / 10,000,000</span></p>
-
-        <!-- Область кликов -->
-        <div id="clickArea" class="w-24 h-24 cursor-pointer mb-6 relative">
-            <img src="img/coin.png" alt="Монета" class="w-full h-full">
-        </div>
-
-        <!-- Магазин улучшений -->
-        <div class="container grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
-            <div id="sickleCard" class="upgrade-card bg-white bg-opacity-90 p-4 rounded shadow flex items-center" title="Увеличивает монеты за клик">
-                <img src="img/serp.png" alt="Серп" class="w-12 h-12 mr-4">
-                <div>
-                    <h3 class="font-bold">Острый серп</h3>
-                    <p>Уровень: <span id="sickleLevel">0</span></p>
-                    <p>Эффект: +<span id="sickleEffect">0</span> монета за клик</p>
-                    <p>Цена: <span id="sicklePrice">50</span> монет</p>
-                    <button id="buySickle" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Купить</button>
-                </div>
-            </div>
-            <div id="shovelCard" class="upgrade-card bg-white bg-opacity-90 p-4 rounded shadow flex items-center" title="Значительно увеличивает монеты за клик">
-                <img src="img/lopata.png" alt="Лопата" class="w-12 h-12 mr-4">
-                <div>
-                    <h3 class="font-bold">Золотая лопата</h3>
-                    <p>Уровень: <span id="shovelLevel">0</span></p>
-                    <p>Эффект: +<span id="shovelEffect">0</span> монеты за клик</p>
-                    <p>Цена: <span id="shovelPrice">1000</span> монет</p>
-                    <button id="buyShovel" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Купить</button>
-                </div>
-            </div>
-            <div id="workerCard" class="upgrade-card bg-white bg-opacity-90 p-4 rounded shadow flex items-center" title="Автоматически добывает монеты каждую секунду">
-                <img src="img/farmer.png" alt="Работник" class="w-12 h-12 mr-4">
-                <div>
-                    <h3 class="font-bold">Ловкий работник</h3>
-                    <p>Уровень: <span id="workerLevel">0</span></p>
-                    <p>Эффект: +<span id="workerEffect">0</span> монета/сек</p>
-                    <p>Цена: <span id="workerPrice">200</span> монет</p>
-                    <button id="buyWorker" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Купить</button>
-                </div>
-            </div>
-            <div id="stableCard" class="upgrade-card bg-white bg-opacity-90 p-4 rounded shadow flex items-center" title="Значительно увеличивает автоматический доход">
-                <img src="img/horsehome.png" alt="Конюшня" class="w-12 h-12 mr-4">
-                <div>
-                    <h3 class="font-bold">Конюшня мечты</h3>
-                    <p>Уровень: <span id="stableLevel">0</span></p>
-                    <p>Эффект: +<span id="stableEffect">0</span> монеты/сек</p>
-                    <p>Цена: <span id="stablePrice">5000</span> монет</p>
-                    <button id="buyStable" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Купить</button>
-                </div>
+<body class="bg-gray-100 font-sans">
+    <div id="mainContainer" class="container mx-auto p-6 fade-in">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Купи коня!</h1>
+            <div class="space-x-4">
+                <button id="showAchievements" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">Достижения</button>
+                <button id="showLeaderboard" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">Рейтинг</button>
+                <a href="#" id="logout" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">Выйти</a>
             </div>
         </div>
 
-        <!-- Кнопки для открытия модальных окон -->
-        <div class="container mt-6 max-w-2xl text-center space-x-4">
-            <button id="showAchievements" class="toggle-btn text-white px-6 py-2 rounded">Показать достижения</button>
-            <button id="showLeaderboard" class="toggle-btn text-white px-6 py-2 rounded">Посмотреть рейтинг</button>
+        <div class="text-center mb-6">
+            <p class="text-xl">Монеты: <span id="coinCount" class="font-bold">0</span></p>
+            <p class="text-lg">Цель: <span id="progressText">0 / 10000000</span></p>
+            <div class="w-full bg-gray-300 rounded h-4 mt-2">
+                <div id="progressBar" class="bg-green-500 h-4 rounded" style="width: 0%"></div>
+            </div>
+            <p class="text-lg mt-2">CPS: <span id="cpsCount">0</span></p>
         </div>
 
-        <!-- Модальное окно для достижений -->
-        <div id="achievementsModal">
-            <div id="achievementsModalContent">
-                <button id="closeModal">Закрыть</button>
-                <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Достижения</h2>
-                <div id="achievementsList" class="space-y-4">
-                    <!-- Достижения будут добавлены через JavaScript -->
-                </div>
+        <div id="clickArea" class="relative w-64 h-64 mx-auto cursor-pointer">
+            <img src="https://mramyra.github.io/buy-a-horse/img/coin.png" alt="Кликни!" class="w-full h-full">
+        </div>
+
+        <div id="konamiMessage" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-white px-4 py-2 rounded shadow-lg">
+            Код Konami активирован! +100,000 за клик!
+        </div>
+
+        <div id="achievementNotification" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+            Достижение выполнено!
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+            <div id="sickleCard" class="bg-white p-4 rounded-lg shadow upgrade-card">
+                <h2 class="text-lg font-bold">Острый серп</h2>
+                <p>Уровень: <span id="sickleLevel">0</span></p>
+                <p>Эффект: +<span id="sickleEffect">0</span> за клик</p>
+                <p>Цена: <span id="sicklePrice">50</span> монет</p>
+                <button id="buySickle" class="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600 transition">Купить</button>
+            </div>
+            <div id="shovelCard" class="bg-white p-4 rounded-lg shadow upgrade-card">
+                <h2 class="text-lg font-bold">Золотая лопата</h2>
+                <p>Уровень: <span id="shovelLevel">0</span></p>
+                <p>Эффект: +<span id="shovelEffect">0</span> за клик</p>
+                <p>Цена: <span id="shovelPrice">1000</span> монет</p>
+                <button id="buyShovel" class="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600 transition">Купить</button>
+            </div>
+            <div id="workerCard" class="bg-white p-4 rounded-lg shadow upgrade-card">
+                <h2 class="text-lg font-bold">Ловкий работник</h2>
+                <p>Уровень: <span id="workerLevel">0</span></p>
+                <p>Эффект: +<span id="workerEffect">0</span> монет/сек</p>
+                <p>Цена: <span id="workerPrice">200</span> монет</p>
+                <button id="buyWorker" class="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600 transition">Купить</button>
+            </div>
+            <div id="stableCard" class="bg-white p-4 rounded-lg shadow upgrade-card">
+                <h2 class="text-lg font-bold">Конюшня мечты</h2>
+                <p>Уровень: <span id="stableLevel">0</span></p>
+                <p>Эффект: +<span id="stableEffect">0</span> монет/сек</p>
+                <p>Цена: <span id="stablePrice">5000</span> монет</p>
+                <button id="buyStable" class="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600 transition">Купить</button>
             </div>
         </div>
 
-        <!-- Модальное окно для рейтинга -->
-        <div id="leaderboardModal">
-            <div id="leaderboardModalContent">
-                <button id="closeLeaderboardModal">Закрыть</button>
-                <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Рейтинг игроков</h2>
-                <table id="leaderboardTable">
+        <div id="achievementsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+            <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-[80vh] overflow-y-auto">
+                <h2 class="text-2xl font-bold mb-4">Достижения</h2>
+                <div id="achievementsList" class="space-y-4"></div>
+                <button id="closeModal" class="bg-red-500 text-white px-4 py-2 mt-4 rounded hover:bg-red-600 transition">Закрыть</button>
+            </div>
+        </div>
+
+        <div id="leaderboardModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+            <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+                <h2 class="text-2xl font-bold mb-4">Рейтинг</h2>
+                <table class="w-full text-left">
                     <thead>
                         <tr>
-                            <th>Игрок</th>
-                            <th>Куплено коней</th>
-                            <th>Монеты</th>
-                            <th>Рейтинг</th>
+                            <th>Место</th>
+                            <th>Имя</th>
+                            <th>Кони</th>
                         </tr>
                     </thead>
-                    <tbody id="leaderboardBody">
-                        <!-- Рейтинг будет добавлен через JavaScript -->
-                    </tbody>
+                    <tbody id="leaderboardBody"></tbody>
                 </table>
+                <button id="closeLeaderboardModal" class="bg-red-500 text-white px-4 py-2 mt-4 rounded hover:bg-red-600 transition">Закрыть</button>
             </div>
         </div>
-
-        <!-- Кнопка выхода -->
-        <a href="index.html" id="logout" class="mt-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Выйти</a>
-
-        <!-- Индикатор кода Konami -->
-        <div id="konamiMessage">Код Konami активирован!</div>
-
-        <!-- Уведомление о достижении -->
-        <div id="achievementNotification"></div>
     </div>
-
-    <!-- Подключение JS -->
-    <script src="js/common.js"></script>
-    <script src="js/game.js"></script>
+    <script src="https://mramyra.github.io/buy-a-horse/js/game.js"></script>
 </body>
 </html>
