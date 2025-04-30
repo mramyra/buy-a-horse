@@ -24,7 +24,7 @@ const upgrades = {
 const achievementDefinitions = [
     { id: 'newbie', name: 'Новичок', description: 'Собери 100 монет', condition: () => coins >= 100, progress: () => Math.min(coins, 100), maxProgress: 100, reward: 50 },
     { id: 'farmer', name: 'Фермер', description: 'Купи 1 уровень "Ловкого работника"', condition: () => upgrades.worker.level >= 1, progress: () => upgrades.worker.level, maxProgress: 1, reward: 200 },
-    { id: 'konami', name: 'Секретный kode', description: 'Активируй код Konami', condition: () => konamiActivated, progress: () => (konamiActivated ? 1 : 0), maxProgress: 1, reward: 500 },
+    { id: 'konami', name: 'Секретный код', description: 'Активируй код Konami', condition: () => konamiActivated, progress: () => (konamiActivated ? 1 : 0), maxProgress: 1, reward: 500 },
     { id: 'millionaire', name: 'Миллионер', description: 'Собери 1,000,000 монет', condition: () => coins >= 1000000, progress: () => Math.min(coins, 1000000), maxProgress: 1000000, reward: 1000 },
     { id: 'clicker_10', name: 'Начинающий кликер', description: 'Сделай 10 кликов', condition: () => clicks >= 10, progress: () => Math.min(clicks, 10), maxProgress: 10, reward: 20 },
     { id: 'clicker_100', name: 'Уверенный кликер', description: 'Сделай 100 кликов', condition: () => clicks >= 100, progress: () => Math.min(clicks, 100), maxProgress: 100, reward: 100 },
@@ -118,19 +118,8 @@ async function saveProgress() {
     if (!currentUser) return; // Пропускаем, если пользователь не авторизован
 
     try {
-        // Получаем ссылку на документ пользователя
-        const userRef = window.db.collection('users').doc(currentUser);
-        // Загружаем текущие данные пользователя, чтобы сохранить поле password
-        const doc = await userRef.get();
-        let password = '';
-        if (doc.exists && doc.data().password) {
-            password = doc.data().password; // Сохраняем существующий пароль
-        }
-
-        // Сохраняем текущие данные пользователя, включая password
-        await userRef.set({
-            username: currentUser,
-            password: password, // Сохраняем поле password
+        // Обновляем только указанные поля, не затрагивая password
+        await window.db.collection('users').doc(currentUser).update({
             coins: coins,
             clickValue: clickValue,
             passiveIncome: passiveIncome,
