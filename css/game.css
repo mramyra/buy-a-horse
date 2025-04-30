@@ -1,3 +1,25 @@
+/* game.css */
+
+/* Стили для анимации затухания */
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+.fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Стили для кликабельной области */
 #clickArea img {
     transition: transform 0.1s;
 }
@@ -10,6 +32,18 @@
     animation: rotateCoin 0.3s ease;
 }
 
+/* Стили для частиц при клике */
+.particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: url('../images/coin.png') no-repeat center;
+    background-size: contain;
+    pointer-events: none;
+    animation: particleFade 0.5s ease-out forwards;
+}
+
+/* Стили для улучшений */
 .upgrade-card {
     transition: background-color 0.3s, transform 0.2s;
     position: relative;
@@ -28,11 +62,23 @@
     opacity: 0.7;
 }
 
+/* Стили для кнопок */
 button:disabled {
     background-color: #9ca3af;
     cursor: not-allowed;
 }
 
+.toggle-btn {
+    background: linear-gradient(to right, #f59e0b, #fbbf24);
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Стили для уведомлений */
 #konamiMessage {
     position: fixed;
     bottom: 10px;
@@ -75,28 +121,6 @@ button:disabled {
     font-size: 12px;
 }
 
-.progress-bar {
-    background: linear-gradient(to right, #22c55e, #86efac);
-}
-
-.particle {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background: url('../img/coin.png') no-repeat center;
-    background-size: contain;
-    pointer-events: none;
-    animation: particleFade 0.5s ease-out forwards;
-}
-
-.achievement-card {
-    transition: background-color 0.3s;
-}
-
-.achievement-card.completed {
-    background-color: #fef08a;
-}
-
 #achievementNotification {
     position: fixed;
     bottom: 50px;
@@ -109,14 +133,36 @@ button:disabled {
     font-size: 14px;
 }
 
-.toggle-btn {
-    background: linear-gradient(to right, #f59e0b, #fbbf24);
-    transition: all 0.3s ease;
+/* Стили для прогресс-бара */
+.progress-bar {
+    background: linear-gradient(to right, #22c55e, #86efac);
 }
 
-.toggle-btn:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1);
+/* Стили для достижений */
+.achievement-card {
+    transition: background-color 0.3s;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+.achievement-card.completed {
+    background-color: #fef08a;
+}
+
+.achievement-progress-bar {
+    background: #e5e7eb;
+    border-radius: 5px;
+    height: 8px;
+    margin-top: 5px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.achievement-progress-bar-fill {
+    background: linear-gradient(to right, #22c55e, #86efac);
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease;
 }
 
 /* Стили для модального окна достижений */
@@ -163,27 +209,6 @@ button:disabled {
     background: #dc2626;
 }
 
-.achievement-card {
-    word-break: break-word;
-    max-width: 100%;
-}
-
-.achievement-progress-bar {
-    background: #e5e7eb;
-    border-radius: 5px;
-    height: 8px;
-    margin-top: 5px;
-    width: 100%;
-    overflow: hidden;
-}
-
-.achievement-progress-bar-fill {
-    background: linear-gradient(to right, #22c55e, #86efac);
-    height: 100%;
-    border-radius: 5px;
-    transition: width 0.3s ease;
-}
-
 /* Стили для модального окна рейтинга */
 #leaderboardModal {
     display: none;
@@ -228,6 +253,7 @@ button:disabled {
     background: #dc2626;
 }
 
+/* Стили для таблицы рейтинга */
 #leaderboardTable {
     width: 100%;
     border-collapse: collapse;
@@ -244,14 +270,106 @@ button:disabled {
     font-weight: bold;
 }
 
+/* Стили для прогресс-бара в таблице лидеров */
+.w-full.bg-gray-300.rounded {
+    height: 16px;
+    background: #e5e7eb;
+    border-radius: 5px;
+}
+
+.bg-blue-500.h-4.rounded {
+    background: linear-gradient(to right, #3b82f6, #93c5fd);
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+/* Адаптивная вёрстка */
 @media (max-width: 640px) {
+    /* Уменьшаем отступы и размеры для модальных окон */
     #achievementsModalContent, #leaderboardModalContent {
         padding: 15px;
         max-height: 70vh;
+        width: 95%;
     }
+
+    /* Уменьшаем шрифты и отступы в таблице рейтинга */
     #leaderboardTable th, #leaderboardTable td {
         padding: 4px;
         font-size: 0.75rem;
+    }
+
+    /* Уменьшаем размер прогресс-бара в таблице */
+    .w-full.bg-gray-300.rounded {
+        height: 12px;
+    }
+
+    /* Уменьшаем кликабельную область */
+    #clickArea {
+        width: 48px;
+        height: 48px;
+    }
+
+    /* Уменьшаем размер частиц */
+    .particle {
+        width: 6px;
+        height: 6px;
+    }
+
+    /* Уменьшаем шрифты и отступы в карточках улучшений */
+    .upgrade-card {
+        padding: 8px;
+    }
+
+    .upgrade-card h2 {
+        font-size: 0.9rem;
+    }
+
+    .upgrade-card p {
+        font-size: 0.75rem;
+    }
+
+    .upgrade-card button {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+
+    /* Уменьшаем шрифты в заголовках и текстах */
+    h1.text-3xl {
+        font-size: 1.5rem;
+    }
+
+    .text-xl {
+        font-size: 1rem;
+    }
+
+    .text-lg {
+        font-size: 0.875rem;
+    }
+
+    /* Уменьшаем кнопки в шапке */
+    .space-x-4 button, .space-x-4 a {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+
+    /* Уведомления */
+    #konamiMessage, #achievementNotification {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    #konamiHint {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+
+    #konamiHint span.arrow {
+        font-size: 12px;
+    }
+
+    #konamiHint span.letter {
+        font-size: 10px;
     }
 }
 

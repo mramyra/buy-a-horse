@@ -1,12 +1,84 @@
-document.getElementById('playAgain').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('mainContainer').classList.add('fade-out');
-    setTimeout(() => {
-        window.location.href = 'game.html';
-    }, 300);
-});
+// win.js
 
-document.getElementById('logout').addEventListener('click', (e) => {
-    e.preventDefault();
-    logout();
+// Ждём загрузки DOM
+document.addEventListener('DOMContentLoaded', async () => {
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) {
+        window.location.href = 'index.html'; // Перенаправляем, если пользователь не авторизован
+        return;
+    }
+
+    // Получаем ссылку на кнопку "Играть снова"
+    const playAgainButton = document.getElementById('playAgain');
+
+    try {
+        // Получаем данные пользователя из Firestore
+        const userRef = window.db.collection('users').doc(currentUser);
+        const doc = await userRef.get();
+        if (!doc.exists) {
+            console.error('Пользователь не найден:', currentUser);
+            window.location.href = 'index.html';
+            return;
+        }
+
+        // Получаем текущие данные
+        const userData = doc.data();
+        let horsesBought = (userData.horsesBought || 0) + 1; // Увеличиваем количество купленных лошадей
+
+        // Сбрасываем прогресс для новой игры
+        const initialUpgrades = {
+            sickle: { level: 0, basePrice: 50, price: 50, baseEffect: 1, effect: 0 },
+            shovel: { level: 0, basePrice: 1000, price: 1000, baseEffect: 5, effect: 0 },
+            worker: { level: 0, basePrice: 200, price: 200, baseEffect: 1, effect: 0 },
+            stable: { level: 0, basePrice: 5000, price: 5000, baseEffect: 20, effect: 0 }
+        };
+
+        const initialAchievements = [
+            { id: 'newbie', completed: false },
+            { id: 'farmer', completed: false },
+            { id: 'konami', completed: false },
+            { id: 'millionaire', completed: false },
+            { id: 'clicker_10', completed: false },
+            { id: 'clicker_100', completed: false },
+            { id: 'clicker_1000', completed: false },
+            { id: 'sickle_5', completed: false },
+            { id: 'shovel_3', completed: false },
+            { id: 'worker_10', completed: false },
+            { id: 'stable_5', completed: false },
+            { id: 'coins_5000', completed: false },
+            { id: 'coins_50000', completed: false },
+            { id: 'coins_5000000', completed: false },
+            { id: 'passive_10', completed: false },
+            { id: 'passive_50', completed: false },
+            { id: 'passive_100', completed: false },
+            { id: 'click_value_10', completed: false },
+            { id: 'click_value_50', completed: false },
+            { id: 'upgrades_5', completed: false },
+            { id: 'upgrades_20', completed: false },
+            { id: 'upgrades_50', completed: false },
+            { id: 'coins_100000', completed: false },
+            { id: 'sickle_10', completed: false }
+        ];
+
+        // Сохраняем обновлённые данные с увеличенным horsesBought и сброшенным прогрессом
+        await userRef.update({
+            horsesBought: horsesBought, // Обновляем количество купленных лошадей
+            coins: 0, // Сбрасываем монеты
+            clickValue: 1, // Сбрасываем значение клика
+            passiveIncome: 0, // Сбрасываем пассивный доход
+            upgrades: initialUpgrades, // Сбрасываем улучшения
+            achievements: initialAchievements // Сбрасываем достижения
+        });
+
+        // Обработчик для кнопки "Играть снова"
+        playAgainButton.addEventListener('click', () => {
+            document.getElementById('mainContainer').classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = 'game.html'; // Перенаправляем на страницу игры
+            }, 300);
+        });
+    } catch (error) {
+        console.error('Ошибка при обработке данных:', error);
+        alert('Произошла ошибка. Проверь консоль.');
+    }
 });

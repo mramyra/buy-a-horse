@@ -189,8 +189,8 @@ function showAchievementNotification(achievement) {
 }
 
 // Функция расчёта рейтинга игрока для таблицы лидеров
-function calculateRating(horsesBought, coins) {
-    return (horsesBought * 1000) + coins;
+function calculateRating(horsesBought) {
+    return horsesBought; // Теперь рейтинг зависит только от количества купленных лошадей
 }
 
 // Функция отображения таблицы лидеров
@@ -209,23 +209,27 @@ async function renderLeaderboard() {
                 coins: user.coins || 0
             });
         });
-        // Сортируем пользователей по рейтингу
-        users.sort((a, b) => calculateRating(b.horsesBought, b.coins) - calculateRating(a.horsesBought, a.coins));
-        // Отображаем пользователей в таблице
-        users.forEach(user => {
+        // Сортируем пользователей по количеству купленных лошадей
+        users.sort((a, b) => calculateRating(b.horsesBought) - calculateRating(a.horsesBought));
+        // Отображаем пользователей в таблице с местами
+        users.forEach((user, index) => {
             const row = document.createElement('tr');
-            const rating = calculateRating(user.horsesBought, user.coins);
+            const progressPercentage = (user.coins / goal) * 100; // Прогресс к следующему коню
             row.innerHTML = `
+                <td>${index + 1}</td> <!-- Показываем место игрока -->
                 <td>${user.username}</td>
                 <td>${user.horsesBought}</td>
-                <td>${Math.floor(user.coins)}</td>
-                <td>${rating}</td>
+                <td>
+                    <div class="w-full bg-gray-300 rounded">
+                        <div class="bg-blue-500 h-4 rounded" style="width: ${progressPercentage}%"></div>
+                    </div>
+                </td>
             `;
             leaderboardBody.appendChild(row);
         });
     } catch (error) {
         console.error('Ошибка при загрузке рейтинга:', error);
-        alert('Не удалось загрузке рейтинга. Проверь консоль.');
+        alert('Не удалось загрузить рейтинг. Проверь консоль.');
     }
 }
 
@@ -266,13 +270,11 @@ function updateUI() {
 
     // Проверяем, достигнута ли цель для покупки лошади
     if (coins >= goal) {
-        horsesBought++;
+        horsesBought++; // Увеличиваем количество купленных лошадей
+        saveProgress(); // Сохраняем прогресс перед перенаправлением
         document.getElementById('mainContainer').classList.add('fade-out');
         setTimeout(() => {
             window.location.href = 'win.html'; // Перенаправляем на страницу победы
-            coins = 0; // Сбрасываем монеты
-            resetUpgrades(); // Сбрасываем улучшения
-            saveProgress(); // Сохраняем прогресс
         }, 300);
     }
 }
