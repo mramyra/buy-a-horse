@@ -4,19 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Победа!</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/win.css">
+    <link rel="stylesheet" href="https://mramyra.github.io/buy-a-horse/css/tailwind.min.css">
+    <link rel="stylesheet" href="https://mramyra.github.io/buy-a-horse/css/common.css">
+    <link rel="stylesheet" href="https://mramyra.github.io/buy-a-horse/css/win.css">
+    <script src="https://mramyra.github.io/buy-a-horse/js/firebase-app.js"></script>
+    <script src="https://mramyra.github.io/buy-a-horse/js/firebase-firestore.js"></script>
+    <script src="https://mramyra.github.io/buy-a-horse/js/common.js"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div id="mainContainer" class="bg-white p-8 rounded-lg shadow-lg text-center fade-in">
         <h1 class="text-4xl font-bold mb-4 text-green-600">Поздравляем!</h1>
         <p class="text-xl mb-6">Вы купили коня! 🐴</p>
-        <!-- Оставляем только одно место для картинки коня -->
         <div class="flex justify-center mb-6">
-            <img src="img/horse.png" alt="Конь" class="w-32 h-32">
+            <img src="https://mramyra.github.io/buy-a-horse/img/horse.png" alt="Конь" class="w-32 h-32">
         </div>
         <button id="playAgain" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">Играть снова</button>
     </div>
-    <script src="js/win.js"></script>
+    <script src="https://mramyra.github.io/buy-a-horse/js/win.js"></script>
 </body>
 </html>

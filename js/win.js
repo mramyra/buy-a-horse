@@ -4,7 +4,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) {
-        window.location.href = 'index.html'; // Перенаправляем, если пользователь не авторизован
+        // Перенаправляем, если пользователь не авторизован, без асинхронных операций
+        window.location.href = 'index.html';
         return;
     }
 
@@ -12,6 +13,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const playAgainButton = document.getElementById('playAgain');
 
     try {
+        // Проверяем, инициализирован ли window.db
+        if (!window.db) {
+            throw new Error('Firestore не инициализирован. Проверь подключение Firebase и common.js.');
+        }
+
         // Получаем данные пользователя из Firestore
         const userRef = window.db.collection('users').doc(currentUser);
         const doc = await userRef.get();
@@ -79,5 +85,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error('Ошибка при обработке данных:', error);
         alert('Произошла ошибка. Проверь консоль.');
+        // В случае ошибки всё равно позволим пользователю продолжить игру
+        playAgainButton.addEventListener('click', () => {
+            document.getElementById('mainContainer').classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = 'game.html';
+            }, 300);
+        });
     }
 });
