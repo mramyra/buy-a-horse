@@ -45,6 +45,13 @@ let konamiProgress = [];
 const currentUser = localStorage.getItem('currentUser');
 const goal = 10000000;
 
+// Переменные для оптимизации запросов
+const SYNC_INTERVAL = 30000; // Синхронизация с Firestore каждые 30 секунд
+const LEADERBOARD_CACHE_DURATION = 5 * 60 * 1000; // Кэш рейтинга обновляется раз в 5 минут
+let lastSyncTime = 0;
+let lastLeaderboardUpdate = 0;
+let leaderboardCache = null;
+
 // Функция загрузки прогресса
 async function loadProgress() {
     if (!currentUser) {
@@ -52,6 +59,7 @@ async function loadProgress() {
         return;
     }
 
+    // Сначала пытаемся загрузить из Firestore
     try {
         if (!window.db) {
             throw new Error('Firestore не инициализирован. Проверь подключение Firebase и common.js.');
@@ -80,18 +88,57 @@ async function loadProgress() {
             document.getElementById('konamiMessage').style.display = 'block';
         }
 
+        // Сохраняем прогресс в localStorage как резервную копию
+        localStorage.setItem('gameProgress', JSON.stringify({
+            coins, clickValue, passiveIncome, upgrades, achievements,
+            horsesBought, clickCount, totalUpgradesBought, konamiActive
+        }));
+
         updateUI();
     } catch (error) {
-        console.error('Ошибка при загрузке прогресса:', error);
+        console.error('Ошибка при загрузке прогресса из Firestore:', error);
+        // Загружаем прогресс из localStorage, если Firestore недоступен
+        const savedProgress = localStorage.getItem('gameProgress');
+        if (savedProgress) {
+            const data = JSON.parse(savedProgress);
+            coins = data.coins || 0;
+            clickValue = data.clickValue || 1;
+            passiveIncome = data.passiveIncome || 0;
+            upgrades = data.upgrades || upgrades;
+            achievements = data.achievements || achievements;
+            horsesBought = data.horsesBought || 0;
+            clickCount = data.clickCount || 0;
+            totalUpgradesBought = data.totalUpgradesBought || 0;
+            konamiActive = data.konamiActive || false;
+            if (konamiActive) {
+                clickValue += 100000;
+                document.getElementById('konamiMessage').style.display = 'block';
+            }
+            updateUI();
+        }
     }
 }
 
 // Функция сохранения прогресса
-async function saveProgress() {
+async function saveProgress(forceSync = false) {
     if (!currentUser) {
         console.warn('Пользователь не авторизован. Пропускаем сохранение прогресса.');
         return;
     }
+
+    // Всегда сохраняем прогресс в localStorage
+    localStorage.setItem('gameProgress', JSON.stringify({
+        coins, clickValue, passiveIncome, upgrades, achievements,
+        horsesBought, clickCount, totalUpgradesBought, konamiActive
+    }));
+
+    // Синхронизируем с Firestore только если прошло достаточно времени или это принудительная синхронизация
+    const now = Date.now();
+    if (!forceSync && now - lastSyncTime < SYNC_INTERVAL) {
+        return; // Ещё не время для синхронизации
+    }
+
+    lastSyncTime = now;
 
     try {
         if (!window.db) {
@@ -110,8 +157,11 @@ async function saveProgress() {
             totalUpgradesBought: totalUpgradesBought,
             konamiActive: konamiActive
         }, { merge: true });
+
+        console.log('Прогресс успешно синхронизирован с Firestore');
     } catch (error) {
-        console.error('Ошибка при сохранении прогресса:', error);
+        console.error('Ошибка при сохранении прогресса в Firestore:', error);
+        // Прогресс уже сохранён в localStorage, синхронизируем позже
     }
 }
 
@@ -151,7 +201,7 @@ function checkGoal() {
     if (coins >= goal) {
         coins -= goal;
         horsesBought += 1;
-        saveProgress().then(() => {
+        saveProgress(true).then(() => {
             window.location.href = 'win.html';
         });
     }
@@ -221,13 +271,32 @@ function updateAchievementsList() {
 
 // Обновление рейтинга
 async function updateLeaderboard() {
+    const now = Date.now();
+    const leaderboardBody = document.getElementById('leaderboardBody');
+    leaderboardBody.innerHTML = '';
+
+    // Проверяем, есть ли кэшированные данные и не устарели ли они
+    if (leaderboardCache && now - lastLeaderboardUpdate < LEADERBOARD_CACHE_DURATION) {
+        leaderboardCache.forEach((user, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.username}</td>
+                <td>${user.horsesBought}</td>
+                <td>${Math.floor(user.coins)}</td>
+                <td>${index + 1}</td>
+            `;
+            leaderboardBody.appendChild(row);
+        });
+
+        document.getElementById('leaderboardModal').style.display = 'block';
+        return;
+    }
+
+    // Если кэш устарел или отсутствует, делаем запрос к Firestore
     try {
         if (!window.db) {
             throw new Error('Firestore не инициализирован. Проверь подключение Firebase и common.js.');
         }
-
-        const leaderboardBody = document.getElementById('leaderboardBody');
-        leaderboardBody.innerHTML = '';
 
         const usersSnapshot = await window.db.collection('users').get();
         const users = [];
@@ -244,6 +313,11 @@ async function updateLeaderboard() {
         // Сортировка по количеству купленных коней (по убыванию)
         users.sort((a, b) => b.horsesBought - a.horsesBought);
 
+        // Обновляем кэш
+        leaderboardCache = users;
+        lastLeaderboardUpdate = now;
+        localStorage.setItem('leaderboardCache', JSON.stringify({ data: users, timestamp: now }));
+
         // Заполнение таблицы
         users.forEach((user, index) => {
             const row = document.createElement('tr');
@@ -259,16 +333,19 @@ async function updateLeaderboard() {
         document.getElementById('leaderboardModal').style.display = 'block';
     } catch (error) {
         console.error('Ошибка при обновлении рейтинга:', error);
+        // Показываем сообщение об ошибке в UI
+        leaderboardBody.innerHTML = '<tr><td colspan="4">Не удалось загрузить рейтинг. Попробуйте позже.</td></tr>';
+        document.getElementById('leaderboardModal').style.display = 'block';
     }
 }
 
 // Пассивный доход
 function passiveIncomeLoop() {
-    setInterval(() => {
+    setInterval(async () => {
         coins += passiveIncome;
         updateUI();
         updateAchievements();
-        saveProgress();
+        await saveProgress(); // Сохраняем прогресс с учётом интервала
         checkGoal();
     }, 1000);
 }
@@ -287,15 +364,26 @@ function createParticle(x, y) {
     setTimeout(() => particle.remove(), 500);
 }
 
+// Загрузка кэша рейтинга при старте
+function loadLeaderboardCache() {
+    const cached = localStorage.getItem('leaderboardCache');
+    if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        leaderboardCache = data;
+        lastLeaderboardUpdate = timestamp;
+    }
+}
+
 // Обработчики событий
 document.addEventListener('DOMContentLoaded', async () => {
     checkAuth();
+    loadLeaderboardCache();
     await loadProgress();
     passiveIncomeLoop();
 
     // Клик по монетке
     const clickArea = document.getElementById('clickArea');
-    clickArea.addEventListener('click', (e) => {
+    clickArea.addEventListener('click', async (e) => {
         coins += clickValue;
         clickCount++;
         clickArea.querySelector('img').classList.add('clicked');
@@ -306,7 +394,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateUI();
         updateAchievements();
         checkGoal();
-        saveProgress();
+        await saveProgress(); // Сохраняем с учётом интервала
     });
 
     // Покупка улучшений
@@ -367,7 +455,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Код Konami
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', async (e) => {
         konamiProgress.push(e.key);
         if (konamiProgress.length > konamiCode.length) {
             konamiProgress.shift();
@@ -379,7 +467,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('konamiMessage').style.display = 'block';
                 achievements.find(a => a.id === 'konami').completed = true;
                 showAchievementNotification();
-                saveProgress();
+                await saveProgress();
             }
         }
     });
@@ -403,7 +491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Выход
     document.getElementById('logout').addEventListener('click', async (e) => {
         e.preventDefault();
-        await saveProgress();
+        await saveProgress(true); // Принудительная синхронизация при выходе
         localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
     });
@@ -411,5 +499,5 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Сохранение прогресса перед обновлением страницы
 window.addEventListener('beforeunload', async () => {
-    await saveProgress();
+    await saveProgress(true); // Принудительная синхронизация
 });
